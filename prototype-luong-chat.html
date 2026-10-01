@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Phòng I · Lượng đổi → Chất đổi</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#07080c;
+    font-family:'Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif; color:#e8e6e1; }
+  canvas { display:block; }
+
+  #hud { position:fixed; inset:0; pointer-events:none; z-index:10; }
+
+  /* --- nhãn phòng --- */
+  #roomTag { position:absolute; top:22px; left:24px; }
+  #roomTag .k { font-size:11px; letter-spacing:.24em; color:#8a8d99; text-transform:uppercase; }
+  #roomTag .t { font-size:19px; font-weight:600; letter-spacing:.02em; margin-top:4px; color:#f2efe9; }
+
+  /* --- tâm ngắm --- */
+  #cross { position:absolute; left:50%; top:50%; width:5px; height:5px; margin:-2.5px 0 0 -2.5px;
+    border-radius:50%; background:#fff; opacity:.5; transition:opacity .25s, transform .25s; }
+  #cross.hot { opacity:1; transform:scale(1.9); background:#ffb469; }
+
+  /* --- bảng chỉ số --- */
+  #panel { position:absolute; left:50%; bottom:34px; transform:translateX(-50%);
+    width:min(620px, calc(100vw - 32px)); opacity:0; transition:opacity .35s; }
+  #panel.on { opacity:1; }
+
+  .readout { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:10px; }
+  .temp { font-size:44px; font-weight:300; line-height:1; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .temp span { font-size:20px; color:#8a8d99; margin-left:2px; }
+  .phase { text-align:right; }
+  .phase .lbl { font-size:10px; letter-spacing:.22em; color:#8a8d99; text-transform:uppercase; }
+  .phase .val { font-size:22px; font-weight:600; letter-spacing:.04em; margin-top:3px; }
+
+  /* --- thanh ĐỘ --- */
+  .scale { position:relative; height:16px; border-radius:3px; background:#15161d;
+    border:1px solid #23252f; overflow:hidden; }
+  .scale .band { position:absolute; top:0; bottom:0; background:rgba(255,255,255,.045);
+    border-left:1px dashed rgba(255,255,255,.2); border-right:1px dashed rgba(255,255,255,.2); }
+  .scale .fill { position:absolute; top:0; bottom:0; left:0; background:linear-gradient(90deg,#4aa3ff,#ffb469); }
+  .scale .cursor { position:absolute; top:-3px; bottom:-3px; width:2px; background:#fff; box-shadow:0 0 8px #fff; }
+  .ticks { position:relative; height:26px; margin-top:5px; font-size:9.5px; letter-spacing:.14em; color:#8a8d99; }
+  .ticks i { position:absolute; transform:translateX(-50%); font-style:normal; text-align:center; white-space:nowrap; }
+  .ticks i b { display:block; color:#d9d5cd; font-weight:600; font-size:10px; letter-spacing:.1em; }
+  .bandlabel { position:absolute; left:50%; transform:translateX(-50%); top:0;
+    font-size:9.5px; letter-spacing:.2em; color:#6f7280; }
+
+  /* --- tích luỹ tại điểm nút --- */
+  #node { margin-top:16px; opacity:0; transition:opacity .25s; }
+  #node.on { opacity:1; }
+  #node .cap { display:flex; justify-content:space-between; font-size:10px; letter-spacing:.2em;
+    color:#ffb469; text-transform:uppercase; margin-bottom:5px; }
+  #node .track { height:4px; background:#15161d; border-radius:2px; overflow:hidden; }
+  #node .bar { height:100%; width:0; background:#ffb469; box-shadow:0 0 12px #ff8c3c; }
+
+  /* --- gợi ý thao tác --- */
+  #hint { position:absolute; left:50%; bottom:calc(34px + 150px); transform:translateX(-50%);
+    font-size:12.5px; color:#9b9ea9; letter-spacing:.03em; opacity:0; transition:opacity .3s; text-align:center; }
+  #hint.on { opacity:1; }
+  #hint kbd { font:inherit; font-weight:600; color:#f2efe9; background:#1b1d26; border:1px solid #2d3040;
+    border-radius:4px; padding:1px 6px; margin:0 1px; }
+
+  /* --- chớp sáng bước nhảy --- */
+  #flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
+  #burst { position:absolute; left:50%; top:46%; transform:translate(-50%,-50%); text-align:center;
+    opacity:0; pointer-events:none; }
+  #burst .b1 { font-size:13px; letter-spacing:.42em; color:#ffb469; text-transform:uppercase; }
+  #burst .b2 { font-size:34px; font-weight:700; letter-spacing:.08em; margin-top:6px; }
+
+  /* --- lớp phủ: mở đầu / bài học --- */
+  #veil { position:fixed; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
+    background:rgba(5,6,10,.9); backdrop-filter:blur(6px); padding:24px; }
+  #veil.hide { display:none; }
+  .card { width:min(660px,100%); max-height:calc(100vh - 48px); overflow-y:auto;
+    background:#0d0f15; border:1px solid #23252f; border-radius:10px; padding:30px 32px; }
+  .card .eyebrow { font-size:10.5px; letter-spacing:.3em; color:#ffb469; text-transform:uppercase; }
+  .card h1 { font-size:27px; font-weight:600; letter-spacing:-.01em; margin:10px 0 14px; line-height:1.25; }
+  .card h2 { font-size:15px; font-weight:600; margin:22px 0 8px; color:#f2efe9; }
+  .card p { font-size:14.5px; line-height:1.65; color:#b9bcc6; margin:0 0 12px; }
+  .card dl { margin:0; }
+  .card dt { font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:#ffb469; margin-top:14px; }
+  .card dd { margin:5px 0 0; font-size:14.5px; line-height:1.6; color:#b9bcc6; }
+  .quote { border-left:2px solid #ffb469; padding-left:16px; margin:20px 0 0;
+    font-size:14.5px; line-height:1.65; color:#d9d5cd; font-style:italic; }
+  .quote cite { display:block; margin-top:8px; font-style:normal; font-size:12px; color:#757884; letter-spacing:.04em; }
+  .keys { display:flex; flex-wrap:wrap; gap:10px 22px; margin:18px 0 6px; font-size:13px; color:#9b9ea9; }
+  .keys kbd { font:inherit; font-weight:600; color:#f2efe9; background:#1b1d26; border:1px solid #2d3040;
+    border-radius:4px; padding:2px 7px; margin-right:6px; }
+  .go { margin-top:26px; display:inline-block; font:inherit; font-size:13px; font-weight:600;
+    letter-spacing:.12em; text-transform:uppercase; color:#07080c; background:#ffb469;
+    border:0; border-radius:5px; padding:12px 26px; cursor:pointer; }
+  .go:hover { background:#ffc68d; }
+  .note { margin-top:16px; font-size:12px; color:#6f7280; line-height:1.55; }
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <div id="roomTag"><div class="k">Tháp Xoắn Ốc · Tầng II — Lò Luyện</div><div class="t">Phòng I — Lượng đổi dẫn đến Chất đổi</div></div>
+  <div id="cross"></div>
+
+  <div id="hint" class="on">Giữ <kbd>Chuột trái</kbd> để cấp nhiệt &nbsp;·&nbsp; Giữ <kbd>Chuột phải</kbd> để làm lạnh</div>
+
+  <div id="panel">
+    <div class="readout">
+      <div class="temp"><b id="tVal">20</b><span>°C</span></div>
+      <div class="phase"><div class="lbl">Chất</div><div class="val" id="pVal">NƯỚC — THỂ LỎNG</div></div>
+    </div>
+    <div class="scale">
+      <div class="band" id="band"></div>
+      <div class="fill" id="fill"></div>
+      <div class="cursor" id="cursor"></div>
+    </div>
+    <div class="ticks" id="ticks">
+      <i id="tk0"><b>0°</b>ĐIỂM NÚT</i>
+      <i id="tk100"><b>100°</b>ĐIỂM NÚT</i>
+      <span class="bandlabel" id="bandLabel">ĐỘ — LƯỢNG ĐỔI, CHẤT CHƯA ĐỔI</span>
+    </div>
+    <div id="node">
+      <div class="cap"><span>Tích luỹ về lượng tại điểm nút</span><span id="nodePct">0%</span></div>
+      <div class="track"><div class="bar" id="nodeBar"></div></div>
+    </div>
+  </div>
+
+  <div id="flash"></div>
+  <div id="burst"><div class="b1">Bước nhảy</div><div class="b2" id="burstTxt">NƯỚC → HƠI</div></div>
+</div>
+
+<div id="veil">
+  <div class="card" id="card">
+    <div class="eyebrow">MLN111 · Chương 2 — Chủ nghĩa duy vật biện chứng</div>
+    <h1>Quy luật chuyển hoá từ những thay đổi về lượng thành những thay đổi về chất</h1>
+    <p>Trước mặt bạn là một bình nước. Đừng đọc gì cả — hãy tự làm nóng nó lên, rồi tự làm lạnh nó xuống.
+       Quan sát xem <em>chất</em> của nó thay đổi vào lúc nào, và bằng cách nào.</p>
+    <div class="keys">
+      <span><kbd>W A S D</kbd>di chuyển</span>
+      <span><kbd>Chuột</kbd>nhìn quanh</span>
+      <span><kbd>Chuột trái</kbd>cấp nhiệt</span>
+      <span><kbd>Chuột phải</kbd>làm lạnh</span>
+      <span><kbd>Esc</kbd>thả chuột</span>
+    </div>
+    <button class="go" id="goBtn">Bước vào phòng</button>
+    <p class="note">Bản mẫu (prototype) — dựng bằng WebGL/Three.js. Phải lại gần bình mới điều khiển được nhiệt.</p>
+  </div>
+</div>
+
+<script src="three.min.js"></script>
+<script>
+if (typeof THREE === 'undefined') {
+  document.getElementById('card').innerHTML =
+    '<div class="eyebrow">Thiếu thư viện</div><h1>Không nạp được three.min.js</h1>' +
+    '<p>File <code>three.min.js</code> phải nằm cùng thư mục với trang này. ' +
+    'Tải lại bằng lệnh:</p><p class="note" style="font-family:monospace;font-size:12.5px">' +
+    'curl -L -o three.min.js https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js</p>';
+  throw new Error('three.js missing');
+}
+</script>
+<script>
+(function () {
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════
+   0 · HẰNG SỐ
+   ═══════════════════════════════════════════════════════════ */
+const ROOM = { w: 15, d: 15, h: 5.2 };
+const T_MIN = -40, T_MAX = 160;          // phạm vi hiển thị trên thang
+const HEAT_RATE = 20;                     // °C mỗi giây
+const LATENT = 2.6;                       // giây giữ tại điểm nút để đủ "lượng"
+const REACH = 4.2;                        // khoảng cách tối đa để điều khiển bình
+
+/* ═══════════════════════════════════════════════════════════
+   1 · CẢNH
+   ═══════════════════════════════════════════════════════════ */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x07080c);
+scene.fog = new THREE.FogExp2(0x07080c, 0.055);
+
+const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.1, 120);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+/* --- phòng --- */
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x14151c, roughness: 0.82, metalness: 0.1 });
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM.w, ROOM.d), floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+const wallMat = new THREE.MeshStandardMaterial({ color: 0x0d0e14, roughness: 0.95, side: THREE.DoubleSide });
+function wall(w, h, x, y, z, ry) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), wallMat);
+  m.position.set(x, y, z); m.rotation.y = ry; m.receiveShadow = true; scene.add(m); return m;
+}
+wall(ROOM.w, ROOM.h, 0, ROOM.h / 2, -ROOM.d / 2, 0);
+wall(ROOM.w, ROOM.h, 0, ROOM.h / 2, ROOM.d / 2, Math.PI);
+wall(ROOM.d, ROOM.h, -ROOM.w / 2, ROOM.h / 2, 0, Math.PI / 2);
+wall(ROOM.d, ROOM.h, ROOM.w / 2, ROOM.h / 2, 0, -Math.PI / 2);
+const ceil = new THREE.Mesh(new THREE.PlaneGeometry(ROOM.w, ROOM.d),
+  new THREE.MeshStandardMaterial({ color: 0x0a0b10, roughness: 1 }));
+ceil.rotation.x = Math.PI / 2; ceil.position.y = ROOM.h; scene.add(ceil);
+
+/* --- lưới sàn mảnh, gợi "không gian trừu tượng" --- */
+const grid = new THREE.GridHelper(ROOM.w, 30, 0x2a2d3a, 0x1a1c24);
+grid.position.y = 0.01;
+grid.material.opacity = 0.35; grid.material.transparent = true;
+scene.add(grid);
+
+/* --- biển chữ trên tường (vẽ bằng canvas) --- */
+function signTexture(lines) {
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#07080c'; g.fillRect(0, 0, c.width, c.height);
+  g.textAlign = 'center';
+  g.fillStyle = '#ffb469'; g.font = '600 34px Inter, Segoe UI, sans-serif';
+  g.letterSpacing = '14px';
+  g.fillText(lines[0], c.width / 2, 108);
+  g.fillStyle = '#4a4d59'; g.font = '400 26px Inter, Segoe UI, sans-serif';
+  g.fillText(lines[1], c.width / 2, 168);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+}
+const sign = new THREE.Mesh(
+  new THREE.PlaneGeometry(6.4, 1.6),
+  new THREE.MeshBasicMaterial({ map: signTexture(['LƯỢNG  →  CHẤT', 'phòng I']), transparent: true, opacity: 0.85 })
+);
+sign.position.set(0, 3.1, -ROOM.d / 2 + 0.05);
+scene.add(sign);
+
+/* ═══════════════════════════════════════════════════════════
+   2 · BÌNH NƯỚC (đối tượng trung tâm)
+   ═══════════════════════════════════════════════════════════ */
+const rig = new THREE.Group();
+scene.add(rig);
+
+/* bệ */
+const plinth = new THREE.Mesh(
+  new THREE.CylinderGeometry(1.15, 1.35, 0.9, 48),
+  new THREE.MeshStandardMaterial({ color: 0x1b1d26, roughness: 0.6, metalness: 0.35 })
+);
+plinth.position.y = 0.45; plinth.castShadow = true; plinth.receiveShadow = true;
+rig.add(plinth);
+
+/* vòng đốt phát sáng dưới đáy bình */
+const burnerMat = new THREE.MeshBasicMaterial({ color: 0x2a2118 });
+const burner = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.055, 12, 64), burnerMat);
+burner.rotation.x = Math.PI / 2; burner.position.y = 0.93;
+rig.add(burner);
+const burnerLight = new THREE.PointLight(0xff7a2c, 0, 5, 2);
+burnerLight.position.set(0, 1.0, 0);
+rig.add(burnerLight);
+
+/* thành bình bằng kính */
+const glass = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.62, 0.62, 1.7, 48, 1, true),
+  new THREE.MeshPhysicalMaterial({
+    color: 0xcfe6ff, roughness: 0.08, metalness: 0, transparent: true,
+    opacity: 0.16, side: THREE.DoubleSide, transmission: 0.0
+  })
+);
+glass.position.y = 1.85; rig.add(glass);
+
+const rimMat = new THREE.MeshStandardMaterial({ color: 0x3a3f4d, roughness: 0.35, metalness: 0.75 });
+const rimTop = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.03, 10, 56), rimMat);
+rimTop.rotation.x = Math.PI / 2; rimTop.position.y = 2.7; rig.add(rimTop);
+const rimBot = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.03, 10, 56), rimMat);
+rimBot.rotation.x = Math.PI / 2; rimBot.position.y = 1.0; rig.add(rimBot);
+const base = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.05, 48), rimMat);
+base.position.y = 0.99; base.castShadow = true; rig.add(base);
+
+/* khối "nước" — chiều cao và màu thay đổi theo trạng thái */
+const waterMat = new THREE.MeshStandardMaterial({
+  color: 0x3d8fd6, roughness: 0.15, metalness: 0.05,
+  transparent: true, opacity: 0.88, emissive: 0x000000
+});
+const water = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.58, 1, 48), waterMat);
+water.position.y = 1.5;
+rig.add(water);
+
+/* lớp tinh thể phủ ngoài khi hoá đá */
+const iceMat = new THREE.MeshStandardMaterial({
+  color: 0xdff2ff, roughness: 0.35, metalness: 0.05, flatShading: true,
+  transparent: true, opacity: 0
+});
+const ice = new THREE.Mesh(new THREE.IcosahedronGeometry(0.6, 1), iceMat);
+ice.position.y = 1.5; ice.scale.set(1, 1.5, 1);
+rig.add(ice);
+
+/* ═══════════════════════════════════════════════════════════
+   3 · HẠT: bọt khí trong nước & hơi nước bay lên
+   ═══════════════════════════════════════════════════════════ */
+function makeDot(size) {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d');
+  const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grd.addColorStop(0, 'rgba(255,255,255,1)');
+  grd.addColorStop(0.35, 'rgba(255,255,255,.55)');
+  grd.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grd; g.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(c);
+}
+const dotTex = makeDot();
+
+function particleSystem(count, color, size, opacity) {
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(count * 3);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const mat = new THREE.PointsMaterial({
+    size, map: dotTex, color, transparent: true, opacity,
+    depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true
+  });
+  const pts = new THREE.Points(geo, mat);
+  pts.frustumCulled = false;
+  rig.add(pts);
+  return { pts, pos, life: new Float32Array(count), vel: new Float32Array(count * 3), count };
+}
+const bubbles = particleSystem(220, 0xbfe4ff, 0.05, 0.9);
+const steam   = particleSystem(420, 0xffffff, 0.30, 0.20);
+[bubbles, steam].forEach(s => { for (let i = 0; i < s.count; i++) s.life[i] = 0; });
+
+/* ═══════════════════════════════════════════════════════════
+   4 · ÁNH SÁNG
+   ═══════════════════════════════════════════════════════════ */
+scene.add(new THREE.AmbientLight(0x2a3040, 0.55));
+const key = new THREE.SpotLight(0xdce7ff, 1.5, 22, Math.PI / 5, 0.55, 1.4);
+key.position.set(0, 5.0, 0); key.target = rig;
+key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x4a6fa8, 0.5);
+rim.position.set(-6, 4, -6); scene.add(rim);
+
+/* ═══════════════════════════════════════════════════════════
+   5 · ĐIỀU KHIỂN GÓC NHÌN THỨ NHẤT (tự viết, không cần add-on)
+   ═══════════════════════════════════════════════════════════ */
+const player = { pos: new THREE.Vector3(0, 1.68, 5.6), yaw: Math.PI, pitch: -0.05 };
+const keys = Object.create(null);
+let locked = false;          // đang khoá con trỏ chuột
+let lockBroken = false;      // trình duyệt từ chối khoá (thường gặp khi mở bằng file://)
+let dragging = false;        // chế độ dự phòng: giữ chuột để xoay góc nhìn
+let mouseHeat = 0;           // nhiệt điều khiển bằng nút chuột (chỉ khi đã khoá)
+
+addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
+});
+addEventListener('keyup', e => { keys[e.code] = false; });
+
+function look(dx, dy) {
+  player.yaw   -= dx * 0.0022;
+  player.pitch -= dy * 0.0022;
+  player.pitch = Math.max(-1.35, Math.min(1.2, player.pitch));
+}
+
+document.addEventListener('pointerlockchange', () => {
+  locked = document.pointerLockElement === renderer.domElement;
+  if (!locked) mouseHeat = 0;
+});
+document.addEventListener('pointerlockerror', () => { lockBroken = true; applyMode(); });
+
+document.addEventListener('mousemove', e => {
+  if (locked) look(e.movementX, e.movementY);
+  else if (dragging) look(e.movementX || 0, e.movementY || 0);
+});
+
+renderer.domElement.addEventListener('contextmenu', e => e.preventDefault());
+renderer.domElement.addEventListener('mousedown', e => {
+  if (!locked && !lockBroken) {
+    try { renderer.domElement.requestPointerLock(); } catch (_) { lockBroken = true; applyMode(); }
+    return;
+  }
+  if (locked) {
+    if (e.button === 0) mouseHeat = 1;
+    if (e.button === 2) mouseHeat = -1;
+  } else {
+    dragging = true; renderer.domElement.style.cursor = 'grabbing';
+  }
+});
+addEventListener('mouseup', e => {
+  if ((e.button === 0 && mouseHeat === 1) || (e.button === 2 && mouseHeat === -1)) mouseHeat = 0;
+  if (dragging) { dragging = false; renderer.domElement.style.cursor = ''; }
+});
+
+/* Bàn phím luôn dùng được ở cả hai chế độ: F = cấp nhiệt, R = làm lạnh */
+function heatInput() {
+  if (keys['KeyF']) return 1;
+  if (keys['KeyR']) return -1;
+  return mouseHeat;
+}
+
+/* Cập nhật hướng dẫn thao tác theo chế độ đang chạy */
+function applyMode() {
+  const el = document.getElementById('hint');
+  if (!el) return;
+  el.innerHTML = lockBroken
+    ? 'Giữ <kbd>F</kbd> để cấp nhiệt &nbsp;·&nbsp; Giữ <kbd>R</kbd> để làm lạnh &nbsp;·&nbsp; <kbd>Kéo chuột</kbd> để nhìn quanh'
+    : 'Giữ <kbd>Chuột trái</kbd> để cấp nhiệt &nbsp;·&nbsp; Giữ <kbd>Chuột phải</kbd> để làm lạnh';
+  const note = document.querySelector('#veil .note');
+  if (note && lockBroken) {
+    note.innerHTML = '<strong style="color:#ffb469">Trình duyệt chặn khoá con trỏ khi mở bằng file://</strong> — ' +
+      'dùng <kbd>F</kbd>/<kbd>R</kbd> để cấp nhiệt/làm lạnh và kéo chuột để nhìn quanh. ' +
+      'Muốn điều khiển bằng nút chuột, hãy chạy <code>python -m http.server</code> trong thư mục này rồi mở <code>localhost:8000</code>.';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6 · TRẠNG THÁI VẬT LÝ — LƯỢNG, ĐIỂM NÚT, BƯỚC NHẢY
+   ───────────────────────────────────────────────────────────
+   phase : 'ICE' | 'WATER' | 'STEAM'          → CHẤT
+   temp  : nhiệt độ tích luỹ dần               → LƯỢNG
+   trans : {node, p}  p ∈ [0,1] — tích luỹ tại → ĐIỂM NÚT
+   p chạm 0 hoặc 1 → đổi chất                  → BƯỚC NHẢY
+   ═══════════════════════════════════════════════════════════ */
+const LOWER  = { 0: 'ICE',   100: 'WATER' };
+const HIGHER = { 0: 'WATER', 100: 'STEAM' };
+const PHASE_LABEL = { ICE: 'NƯỚC ĐÁ — THỂ RẮN', WATER: 'NƯỚC — THỂ LỎNG', STEAM: 'HƠI NƯỚC — THỂ KHÍ' };
+
+const S = { temp: 20, phase: 'WATER', trans: null, totalHeat: 0 };
+const seen = { steam: false, ice: false };
+let firstLeapShown = false, finaleShown = false;
+
+function beginLeapFx(label) {
+  burstTxt.textContent = label;
+  fxFlash = 1; fxShake = 1; fxBurst = 1.6;
+  thump();
+  /* nổ hạt hơi */
+  if (label.indexOf('HƠI') >= 0) for (let i = 0; i < steam.count; i++) spawnSteam(i, true);
+}
+
+function physics(dt) {
+  if (!inReach || heating === 0) return;
+  const d = heating * dt;
+  S.totalHeat += Math.abs(d);
+
+  if (S.trans) {
+    S.trans.p += d / LATENT;
+    if (S.trans.p >= 1) {
+      const before = S.phase;
+      S.phase = HIGHER[S.trans.node]; S.temp = S.trans.node; S.trans = null;
+      if (before !== S.phase) onLeap(before, S.phase);
+    } else if (S.trans.p <= 0) {
+      const before = S.phase;
+      S.phase = LOWER[S.trans.node]; S.temp = S.trans.node; S.trans = null;
+      if (before !== S.phase) onLeap(before, S.phase);
+    }
+    return;
+  }
+
+  S.temp += d * HEAT_RATE;
+
+  /* chạm điểm nút → nhiệt độ ĐỨNG YÊN, lượng vẫn tiếp tục tích luỹ */
+  if (heating > 0) {
+    for (const n of [0, 100]) {
+      if (S.phase === LOWER[n] && S.temp >= n) { S.temp = n; S.trans = { node: n, p: 0 }; break; }
+    }
+  } else {
+    for (const n of [100, 0]) {
+      if (S.phase === HIGHER[n] && S.temp <= n) { S.temp = n; S.trans = { node: n, p: 1 }; break; }
+    }
+  }
+  S.temp = Math.max(T_MIN, Math.min(T_MAX, S.temp));
+}
+
+function onLeap(from, to) {
+  beginLeapFx(from === 'WATER' && to === 'STEAM' ? 'NƯỚC → HƠI'
+            : from === 'STEAM' && to === 'WATER' ? 'HƠI → NƯỚC'
+            : from === 'WATER' && to === 'ICE'   ? 'NƯỚC → ĐÁ'
+            : 'ĐÁ → NƯỚC');
+  if (to === 'STEAM') seen.steam = true;
+  if (to === 'ICE')   seen.ice = true;
+
+  if (!firstLeapShown) { firstLeapShown = true; setTimeout(() => showCard(CARD_LESSON), 1150); }
+  else if (!finaleShown && seen.steam && seen.ice) { finaleShown = true; setTimeout(() => showCard(CARD_FINALE), 1150); }
+}
+
+/* --- tiếng "bụp" tổng hợp bằng WebAudio, không cần file --- */
+let actx = null;
+function thump() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime;
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(180, t);
+    o.frequency.exponentialRampToValueAtTime(42, t + 0.45);
+    g.gain.setValueAtTime(0.28, t);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + 0.6);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t + 0.62);
+  } catch (_) {}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   7 · HẠT — cập nhật
+   ═══════════════════════════════════════════════════════════ */
+function spawnBubble(i) {
+  const a = Math.random() * Math.PI * 2, r = Math.random() * 0.5;
+  bubbles.pos[i*3]   = Math.cos(a) * r;
+  bubbles.pos[i*3+1] = 1.05 + Math.random() * 0.1;
+  bubbles.pos[i*3+2] = Math.sin(a) * r;
+  bubbles.vel[i*3+1] = 0.35 + Math.random() * 0.8;
+  bubbles.life[i] = 1;
+}
+function spawnSteam(i, burstMode) {
+  const a = Math.random() * Math.PI * 2, r = Math.random() * (burstMode ? 0.55 : 0.4);
+  steam.pos[i*3]   = Math.cos(a) * r;
+  steam.pos[i*3+1] = 2.7 + Math.random() * 0.15;
+  steam.pos[i*3+2] = Math.sin(a) * r;
+  steam.vel[i*3]   = (Math.random() - 0.5) * (burstMode ? 1.6 : 0.35);
+  steam.vel[i*3+1] = (burstMode ? 1.6 : 0.5) + Math.random() * 0.9;
+  steam.vel[i*3+2] = (Math.random() - 0.5) * (burstMode ? 1.6 : 0.35);
+  steam.life[i] = 1;
+}
+
+function updateParticles(dt, waterTop) {
+  /* bọt khí: càng nóng càng nhiều — LƯỢNG biến đổi thấy được bằng mắt */
+  const heatRatio = Math.max(0, Math.min(1, (S.temp - 45) / 55));
+  const wantBubbles = (S.phase === 'WATER') ? heatRatio : 0;
+  let budget = wantBubbles * 9;
+  for (let i = 0; i < bubbles.count; i++) {
+    if (bubbles.life[i] > 0) {
+      bubbles.pos[i*3+1] += bubbles.vel[i*3+1] * dt * (0.4 + heatRatio);
+      bubbles.pos[i*3]   += Math.sin(clock * 3 + i) * dt * 0.05;
+      if (bubbles.pos[i*3+1] > waterTop) bubbles.life[i] = 0;
+    } else if (budget > 0 && Math.random() < wantBubbles * 0.5) {
+      spawnBubble(i); budget--;
+    }
+    if (bubbles.life[i] <= 0) bubbles.pos[i*3+1] = -99;
+  }
+  bubbles.pts.geometry.attributes.position.needsUpdate = true;
+  bubbles.pts.material.opacity = 0.15 + heatRatio * 0.75;
+
+  /* hơi nước */
+  const wantSteam = (S.phase === 'STEAM') ? 1 : 0;
+  let sBudget = wantSteam * 5;
+  for (let i = 0; i < steam.count; i++) {
+    if (steam.life[i] > 0) {
+      steam.life[i] -= dt * 0.42;
+      steam.pos[i*3]   += steam.vel[i*3]   * dt;
+      steam.pos[i*3+1] += steam.vel[i*3+1] * dt;
+      steam.pos[i*3+2] += steam.vel[i*3+2] * dt;
+      steam.vel[i*3+1] *= (1 - dt * 0.5);
+      steam.vel[i*3+1] += dt * 0.45;
+    } else if (sBudget > 0) { spawnSteam(i, false); sBudget--; }
+    if (steam.life[i] <= 0) steam.pos[i*3+1] = -99;
+  }
+  steam.pts.geometry.attributes.position.needsUpdate = true;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   8 · HUD
+   ═══════════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const tVal = $('tVal'), pVal = $('pVal'), fill = $('fill'), cursor = $('cursor'),
+      band = $('band'), nodeEl = $('node'), nodeBar = $('nodeBar'), nodePct = $('nodePct'),
+      panel = $('panel'), hint = $('hint'), cross = $('cross'),
+      flash = $('flash'), burst = $('burst'), burstTxt = $('burstTxt'),
+      veil = $('veil'), card = $('card');
+
+const pct = t => ((t - T_MIN) / (T_MAX - T_MIN)) * 100;
+band.style.left  = pct(0) + '%';
+band.style.width = (pct(100) - pct(0)) + '%';
+$('tk0').style.left = pct(0) + '%';
+$('tk100').style.left = pct(100) + '%';
+$('bandLabel').style.left = ((pct(0) + pct(100)) / 2) + '%';
+
+function updateHUD() {
+  tVal.textContent = Math.round(S.temp);
+  pVal.textContent = PHASE_LABEL[S.phase];
+  pVal.style.color = S.phase === 'ICE' ? '#a8d8ff' : S.phase === 'STEAM' ? '#ffd9b0' : '#e8e6e1';
+  const p = pct(S.temp);
+  fill.style.width = p + '%';
+  cursor.style.left = p + '%';
+
+  if (S.trans) {
+    nodeEl.classList.add('on');
+    const v = Math.max(0, Math.min(1, S.trans.p));
+    nodeBar.style.width = (v * 100) + '%';
+    nodePct.textContent = Math.round(v * 100) + '%';
+  } else {
+    nodeEl.classList.remove('on');
+  }
+
+  panel.classList.toggle('on', inReach);
+  hint.classList.toggle('on', inReach && heating === 0 && !S.trans);
+  cross.classList.toggle('hot', inReach);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   9 · THẺ NỘI DUNG
+   ═══════════════════════════════════════════════════════════ */
+const CARD_LESSON = `
+  <div class="eyebrow">Bạn vừa tạo ra một BƯỚC NHẢY</div>
+  <h1>Lượng đổi dần dần, chất đổi đột ngột</h1>
+  <p>Bạn đã cấp nhiệt từng chút một. Suốt một quãng dài, nước vẫn cứ là nước — chỉ nóng hơn.
+     Rồi tới một điểm, nó ngừng nóng lên, tích luỹ thêm, và <em>nhảy</em> sang một chất khác.</p>
+  <dl>
+    <dt>Chất</dt>
+    <dd>Tính quy định vốn có, làm cho sự vật là <em>nó</em> chứ không phải cái khác. Ở đây: rắn — lỏng — khí.</dd>
+    <dt>Lượng</dt>
+    <dd>Tính quy định về quy mô, trình độ, tốc độ… mà sự thay đổi của nó <em>chưa</em> làm sự vật thành cái khác. Ở đây: nhiệt độ.</dd>
+    <dt>Độ</dt>
+    <dd>Khoảng giới hạn trong đó lượng đã biến đổi nhưng chất vẫn chưa đổi — chính là dải 0°C → 100°C trên thanh đo.</dd>
+    <dt>Điểm nút</dt>                       
+    <dd>Thời điểm mà sự thay đổi về lượng đã đủ để làm chất thay đổi: 0°C và 100°C.</dd>
+    <dt>Bước nhảy</dt>
+    <dd>Sự chuyển hoá về chất do những thay đổi về lượng trước đó gây ra. Nó <em>đứt đoạn</em>, không từ từ.</dd>
+  </dl>
+  <blockquote class="quote">
+    “Những thay đổi đơn thuần về lượng, đến một mức độ nhất định, sẽ chuyển hoá thành những sự khác nhau về chất.”
+    <cite>Ph. Ăngghen — dẫn theo Giáo trình Triết học Mác – Lênin, NXB Chính trị quốc gia Sự thật, 2021</cite>
+  </blockquote>
+  <h2>Chưa xong</h2>
+  <p>Quy luật này đi theo cả hai chiều. Hãy quay lại và thử đi <em>ngược</em>: làm lạnh cho tới khi gặp điểm nút còn lại.</p>
+  <button class="go" id="goBtn">Trở lại phòng</button>`;
+
+const CARD_FINALE = `
+  <div class="eyebrow">Đã tìm ra cả hai điểm nút</div>
+  <h1>Từ bình nước ra tới đời sống</h1>
+  <p>Bạn vừa chứng minh hai chiều của quy luật: lượng đổi làm chất đổi, và chất mới lại quy định
+     một lượng mới (nước đá và hơi nước có những giới hạn hoàn toàn khác nhau).</p>
+  <h2>Ý nghĩa phương pháp luận</h2>
+  <p><strong>Một —</strong> muốn có thay đổi về chất thì phải kiên trì tích luỹ về lượng. Nôn nóng,
+     đốt cháy giai đoạn, muốn nhảy khi chưa đủ lượng là <em>tả khuynh</em>.</p>
+  <p><strong>Hai —</strong> khi lượng đã tích đủ tại điểm nút thì phải quyết đoán thực hiện bước nhảy.
+     Ngần ngừ, bảo thủ, không dám đổi chất là <em>hữu khuynh</em>.</p>
+  <h2>Thử tự trả lời</h2>
+  <p>Bạn ôn thi thêm mỗi ngày một chút — đó là <em>lượng</em>. Điểm số nhảy từ trượt sang đạt — đó là <em>chất</em>.
+     Vậy <em>độ</em> của bạn rộng bao nhiêu, và <em>điểm nút</em> của bạn nằm ở đâu?
+     Một lực lượng sản xuất tích luỹ dần đến mức nào thì buộc quan hệ sản xuất phải thay đổi?</p>
+  <p class="note" style="margin-top:20px">Hết bản mẫu Phòng I. Trong bản đầy đủ, cánh cửa phía sau bình sẽ mở
+     sang Phòng II — <strong>Mâu thuẫn</strong>: nguồn gốc của mọi vận động.</p>
+  <button class="go" id="goBtn">Trở lại phòng</button>`;
+
+function showCard(html) {
+  card.innerHTML = html;
+  veil.classList.remove('hide');
+  document.exitPointerLock();
+  card.querySelector('#goBtn').addEventListener('click', enter);
+}
+function enter() {
+  veil.classList.add('hide');
+  if (lockBroken) { applyMode(); return; }
+  try { renderer.domElement.requestPointerLock(); }
+  catch (_) { lockBroken = true; applyMode(); }
+}
+$('goBtn').addEventListener('click', enter);
+
+/* Dò trước xem môi trường có cho khoá con trỏ không */
+if (!('requestPointerLock' in renderer.domElement) || location.protocol === 'file:') {
+  lockBroken = true;
+}
+applyMode();
+
+/* ═══════════════════════════════════════════════════════════
+   10 · VÒNG LẶP
+   ═══════════════════════════════════════════════════════════ */
+let clock = 0, prev = performance.now(), inReach = false;
+let heating = 0;   // +1 cấp nhiệt · -1 làm lạnh · 0 nghỉ — tính lại mỗi khung hình
+let fxFlash = 0, fxShake = 0, fxBurst = 0;
+
+function move(dt) {
+  if (!veil.classList.contains('hide')) return;   // đang đọc thẻ nội dung thì đứng yên
+  const sp = (keys['ShiftLeft'] ? 5.0 : 3.0) * dt;
+  let fx = 0, fz = 0;
+  if (keys['KeyW'] || keys['ArrowUp'])    fz += 1;
+  if (keys['KeyS'] || keys['ArrowDown'])  fz -= 1;
+  if (keys['KeyA'] || keys['ArrowLeft'])  fx -= 1;
+  if (keys['KeyD'] || keys['ArrowRight']) fx += 1;
+  if (!fx && !fz) return;
+  const len = Math.hypot(fx, fz); fx /= len; fz /= len;
+  const s = Math.sin(player.yaw), c = Math.cos(player.yaw);
+  player.pos.x += (-fz * s + fx * c) * sp;
+  player.pos.z += (-fz * c - fx * s) * sp;
+
+  /* chặn tường */
+  const lim = ROOM.w / 2 - 0.5;
+  player.pos.x = Math.max(-lim, Math.min(lim, player.pos.x));
+  player.pos.z = Math.max(-lim, Math.min(lim, player.pos.z));
+
+  /* chặn bệ đỡ */
+  const d = Math.hypot(player.pos.x, player.pos.z);
+  if (d < 1.75) { player.pos.x *= 1.75 / d; player.pos.z *= 1.75 / d; }
+}
+
+function visuals(dt) {
+  /* chiều cao & màu khối nước theo chất */
+  const targetH = S.phase === 'STEAM' ? 0.22 : 1.45;
+  water.scale.y += (targetH - water.scale.y) * Math.min(1, dt * 3.2);
+  water.position.y = 1.02 + water.scale.y / 2;
+
+  const hot = Math.max(0, Math.min(1, (S.temp - 20) / 80));
+  const cold = Math.max(0, Math.min(1, -S.temp / 40));
+  waterMat.color.setRGB(
+    0.24 + hot * 0.76,
+    0.56 - hot * 0.22 + cold * 0.2,
+    0.84 - hot * 0.62 + cold * 0.16
+  );
+  waterMat.emissive.setRGB(hot * 0.35, hot * 0.1, 0);
+
+  /* nước đá */
+  const iceOn = S.phase === 'ICE' ? 1 : (S.trans && S.trans.node === 0 ? 1 - S.trans.p : 0);
+  iceMat.opacity += (iceOn * 0.92 - iceMat.opacity) * Math.min(1, dt * 4);
+  ice.visible = iceMat.opacity > 0.01;
+  ice.rotation.y += dt * 0.12;
+  waterMat.opacity = 0.88 - iceOn * 0.55;
+
+  /* vòng đốt */
+  const glow = heating > 0 && inReach ? 1 : 0;
+  burnerLight.intensity += (glow * 2.6 - burnerLight.intensity) * Math.min(1, dt * 6);
+  burnerMat.color.setRGB(0.16 + glow * 0.84, 0.13 + glow * 0.3, 0.09);
+
+  /* làm lạnh → ánh sáng xanh lạnh */
+  key.color.setRGB(
+    0.86 + (heating > 0 && inReach ? 0.14 : 0),
+    0.90, 1.0 - (heating > 0 && inReach ? 0.25 : 0)
+  );
+
+  updateParticles(dt, 1.02 + water.scale.y);
+
+  /* hiệu ứng bước nhảy */
+  if (fxFlash > 0) { fxFlash = Math.max(0, fxFlash - dt * 2.6); flash.style.opacity = fxFlash * 0.75; }
+  if (fxBurst > 0) {
+    fxBurst = Math.max(0, fxBurst - dt * 0.75);
+    burst.style.opacity = Math.min(1, fxBurst);
+    burst.style.transform = 'translate(-50%,-50%) scale(' + (1 + (1.6 - fxBurst) * 0.12) + ')';
+  }
+  if (fxShake > 0) fxShake = Math.max(0, fxShake - dt * 2.2);
+}
+
+function frame() {
+  requestAnimationFrame(frame);
+  const now = performance.now();
+  const dt = Math.min(0.05, (now - prev) / 1000);
+  prev = now; clock += dt;
+
+  heating = veil.classList.contains('hide') ? heatInput() : 0;
+  move(dt);
+  inReach = Math.hypot(player.pos.x, player.pos.z) < REACH;
+  physics(dt);
+  visuals(dt);
+  updateHUD();
+
+  camera.position.copy(player.pos);
+  camera.position.y += Math.sin(clock * 8) * 0.012 * (keys['KeyW'] || keys['KeyS'] ? 1 : 0);
+  if (fxShake > 0) {
+    camera.position.x += (Math.random() - 0.5) * fxShake * 0.12;
+    camera.position.y += (Math.random() - 0.5) * fxShake * 0.12;
+  }
+  camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
+
+  renderer.render(scene, camera);
+}
+frame();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+})();
+</script>
+</body>
+</html>
