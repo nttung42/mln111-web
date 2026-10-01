@@ -103,7 +103,7 @@
     o.den = TX.dungAnhSang(ctx.scene, o.nuoc);
 
     o.bot = TX.heHat(ctx.scene, 220, 0xbfe4ff, 0.05, 0.9);
-    o.hoi = TX.heHat(ctx.scene, 420, 0xffffff, 0.30, 0.20);
+    o.hoi = TX.heHat(ctx.scene, 420, 0xaebcd0, 0.30, 0.22);
 
     dungPanel(ctx, T);
   }
@@ -357,8 +357,8 @@
     var T = ctx.text;
     el.t.textContent = Math.round(S.temp);
     el.p.textContent = T.trangThai[S.chat];
-    el.p.style.color = S.chat === 'ICE' ? '#a8d8ff'
-                     : S.chat === 'STEAM' ? '#ffd9b0' : '#e8e6e1';
+    el.p.style.color = S.chat === 'ICE' ? '#2f7fc1'
+                     : S.chat === 'STEAM' ? '#b86e14' : '';
 
     var p = pct(S.temp);
     el.fill.style.width = p + '%';

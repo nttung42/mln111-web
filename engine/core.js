@@ -32,7 +32,7 @@ window.TX = window.TX || {};
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(TX.MAU.nen);
-    scene.fog = new THREE.FogExp2(TX.MAU.nen, 0.055);
+    scene.fog = new THREE.FogExp2(TX.MAU.nen, 0.032);   // sương ngọc trai, mỏng — để thấy xa
 
     camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.1, 120);
 
@@ -46,6 +46,7 @@ window.TX = window.TX || {};
 
     player = new TX.Player(renderer.domElement);
     player.onModeChange = capNhatGoiY;
+    TX.player = player;      // để gỡ lỗi từ console
 
     addEventListener('resize', function () {
       camera.aspect = innerWidth / innerHeight;
@@ -223,6 +224,7 @@ window.TX = window.TX || {};
     var dt = Math.min(0.05, (now - prev) / 1000);
     prev = now;
     clock += dt;
+    TX.uTime.value = clock;
 
     /* đang đọc thẻ hoặc mở sổ tay thì người chơi đứng yên */
     player.enabled = !TX.hud.theDangMo() && !TX.hud.soTayDangMo() && !!phongHienTai;

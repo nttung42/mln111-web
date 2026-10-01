@@ -80,7 +80,7 @@
     o.loi.add(o.quang);
 
     /* tia lửa khi đấu tranh gay gắt */
-    o.tia = TX.heHat(ctx.scene, 260, 0xffd9b0, 0.055, 0.0);
+    o.tia = TX.heHat(ctx.scene, 260, 0xf0a040, 0.055, 0.0);
 
     /* ---------- vật thể mới, sinh ra sau khi chuyển hoá ---------- */
     o.matMoi = new THREE.MeshStandardMaterial({
@@ -95,7 +95,7 @@
     /* ---------- ba cần gạt ---------- */
     dungCan(ctx, 'A', -Math.PI / 2,            0xff5a4a);
     dungCan(ctx, 'B',  Math.PI / 2 - 2.094,    0x8a8d99);
-    dungCan(ctx, 'C',  Math.PI / 2 + 2.094,    0xffb469);
+    dungCan(ctx, 'C',  Math.PI / 2 + 2.094,    0xd88a2c);
 
     o.den = TX.dungAnhSang(ctx.scene, o.loi);
 
@@ -416,9 +416,9 @@
 
     el.c.textContent = Math.round(S.cang * 100);
     el.s.textContent = T.trangThai[S.pha];
-    el.s.style.color = S.pha === 'SUPPRESSED' ? '#ff7a6a'
+    el.s.style.color = S.pha === 'SUPPRESSED' ? '#cf4436'
                      : S.pha === 'RECONCILED' ? '#8a8d99'
-                     : S.pha === 'RESOLVED'   ? '#ffd9b0' : '#e8e6e1';
+                     : S.pha === 'RESOLVED'   ? '#b86e14' : '';
     el.fill.style.width = (S.cang * 100) + '%';
 
     el.node.classList.toggle('on', S.soLanDap > 0);

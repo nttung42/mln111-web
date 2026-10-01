@@ -190,7 +190,7 @@
     var g = c.getContext('2d');
     g.clearRect(0, 0, c.width, c.height);
     g.textAlign = 'center';
-    g.fillStyle = '#a8c4ff';
+    g.fillStyle = '#3d6fbf';
     g.font = '600 44px Inter, "Segoe UI", sans-serif';
     g.fillText(ten, c.width / 2, 52);
     g.fillStyle = '#7f8290';
@@ -300,7 +300,7 @@
     can.position.y = 0.3;
     o.tayGat.add(can);
 
-    o.matNum = new THREE.MeshBasicMaterial({ color: 0xa8c4ff });
+    o.matNum = new THREE.MeshBasicMaterial({ color: 0x3d6fbf });
     var num = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 12), o.matNum);
     num.position.y = 0.62;
     o.tayGat.add(num);
@@ -589,7 +589,7 @@
     var bc = S.che === 'BIEN_CHUNG';
 
     el.m.textContent = T.cheDo[S.che];
-    el.m.style.color = bc ? '#ffd9b0' : '#a8c4ff';
+    el.m.style.color = bc ? '#b86e14' : '#3d6fbf';
     el.n.textContent = bc ? Math.round(S.tg * 100) : Math.floor(S.tach);
     el.u.textContent = bc ? '%' : '/4';
     el.fill.style.width = (bc ? S.tg * 100 : S.tach / 4 * 100) + '%';

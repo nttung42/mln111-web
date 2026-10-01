@@ -42,7 +42,7 @@
 
     for (var i = 0; i < SO_VONG; i++) dungLuong(ctx, i);
 
-    o.hat = TX.heHat(ctx.scene, 200, 0xffd9b0, 0.07, 0.0);
+    o.hat = TX.heHat(ctx.scene, 200, 0xe8a040, 0.07, 0.0);
 
     /* đường xoắn, vẽ dần trong đoạn camera bay cuối phòng */
     o.duong = duongXoan(ctx);
@@ -386,7 +386,7 @@
     /* HUD */
     el.v.textContent = Math.min(SO_VONG, S.vong + 1);
     el.g.textContent = T.giaiDoan[S.xong ? 'XONG' : S.giaiDoan];
-    el.g.style.color = S.giaiDoan === 'QUA' || S.xong ? '#ffd9b0' : '#e8e6e1';
+    el.g.style.color = S.giaiDoan === 'QUA' || S.xong ? '#b86e14' : '';
     el.fill.style.width = (S.moc * 100) + '%';
     el.hat.textContent = SO_HAT[Math.min(SO_VONG - 1, S.vong)];
 

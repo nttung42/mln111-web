@@ -68,8 +68,8 @@
 
     dungMong(ctx);
     dungThuongTang(ctx);
-    dungBan(ctx, 'MONG', -Math.PI / 2, 0xffb469);
-    dungBan(ctx, 'TREN',  Math.PI / 2, 0x8fb8ff);
+    dungBan(ctx, 'MONG', -Math.PI / 2, 0xd88a2c);
+    dungBan(ctx, 'TREN',  Math.PI / 2, 0x4a7fd0);
 
     ctx.player.blockers = [{ x: 0, z: 0, r: 2.6 }];
 
@@ -114,7 +114,7 @@
       m.castShadow = true;
       ctx.scene.add(m);
 
-      var nhan = nhanChu(T[i], '', 0xdfe4ee, 460, 110);
+      var nhan = nhanChu(T[i], '', 0x5a6478, 460, 110);
       ctx.scene.add(nhan);
 
       /* cột nối từ móng lên khối — cái nền sinh ra nó */
@@ -135,7 +135,7 @@
       });
     }
 
-    o.manh = TX.heHat(ctx.scene, 240, 0xdfe4ee, 0.06, 0.0);
+    o.manh = TX.heHat(ctx.scene, 240, 0x8f9bb3, 0.06, 0.0);
   }
 
   function dungBan(ctx, id, goc, mau) {
