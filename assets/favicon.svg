@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Tháp xoắn ốc vàng: thân thuôn dần, dải xoắn quấn quanh, chóp nhọn trên đỉnh -->
+  <defs>
+    <linearGradient id="vang" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b8862f"/>
+      <stop offset=".45" stop-color="#f6d77e"/>
+      <stop offset="1" stop-color="#a87a2a"/>
+    </linearGradient>
+    <clipPath id="than">
+      <path d="M18 54 L24 18 H40 L46 54 Z"/>
+    </clipPath>
+  </defs>
+  <!-- chóp -->
+  <path d="M32 2 L38 16 H26 Z" fill="url(#vang)"/>
+  <circle cx="32" cy="3.5" r="2" fill="#f6d77e"/>
+  <!-- thân -->
+  <path d="M18 54 L24 18 H40 L46 54 Z" fill="url(#vang)"/>
+  <!-- dải xoắn -->
+  <g clip-path="url(#than)" stroke="#7a5418" stroke-width="4" stroke-linecap="round" opacity=".75">
+    <path d="M14 30 L50 20 M14 41 L50 31 M14 52 L50 42"/>
+  </g>
+  <!-- cửa vòm ở chân tháp -->
+  <path d="M28 54 V47 A4 4 0 0 1 36 47 V54 Z" fill="#5a3c10"/>
+  <!-- gờ đỉnh và bệ -->
+  <rect x="22" y="15.5" width="20" height="3" rx="1" fill="#8a6120"/>
+  <rect x="13" y="53" width="38" height="6" rx="2" fill="url(#vang)"/>
+  <rect x="13" y="53" width="38" height="1.6" fill="#7a5418" opacity=".5"/>
+</svg>

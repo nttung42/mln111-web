@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════
-   SẢNH — THÁP XOẮN ỐC
+   SẢNH — THÁP TRIẾT HỌC
 
    Không phải một bảng chọn, mà là một không gian thật: cầu thang xoắn
    đi lên quanh một trụ trung tâm, các cánh cửa phát sáng gắn dọc đường,
@@ -23,6 +23,7 @@
 
   var GOC_DAU = 0.16;   // chừa một khoảng ở chân thang
   var GOC_CUOI = Math.PI * 2 - 0.16;
+  var GOC_CHAN = GOC_CUOI - 0.55;   // bức màn sương ở đỉnh thang — không cho đi qua
   var TAM_CUA = 1.9;    // khoảng cách đứng đủ gần để bước vào cửa
 
   var S, o;
@@ -51,6 +52,7 @@
     dungCauThang(ctx);
     dungCacCua(ctx);
     dungDinh(ctx);
+    dungBangGioiThieu(ctx);
     dungAnhSang(ctx);
 
     /* ---------- người chơi bám theo cầu thang ---------- */
@@ -69,9 +71,9 @@
         var k2 = (R_NGOAI - 0.35) / r;
         pos.x *= k2; pos.z *= k2;
       }
-      /* không cho bước qua khe nối giữa chân thang và đỉnh thang */
+      /* không cho bước qua khe nối ở chân thang, cũng không cho đi vào màn sương */
       var a = gocCua(pos.x, pos.z);
-      if (a < GOC_DAU || a > GOC_CUOI) { pos.x = truocX; pos.z = truocZ; }
+      if (a < GOC_DAU || a > GOC_CHAN) { pos.x = truocX; pos.z = truocZ; }
     };
 
     /* đặt người chơi ở chân thang, hoặc cạnh cánh cửa vừa bước ra */
@@ -567,36 +569,405 @@
     );
   }
 
-  /* ---------- đỉnh tháp ---------- */
+  /* ---------- đỉnh tháp: chìm trong sương ----------
+     Mấy bậc cuối tan vào một bức màn sương ngọc trai — những phòng tiếp
+     theo chưa thành hình. Giữa màn sương, chữ COMING SOON thở chậm. */
+
+  var SUONG_DAU = GOC_CUOI - 0.75;   // sương bắt đầu dày dần từ đây
+  var SUONG_DAY = GOC_CHAN;          // tới mép màn sương thì đặc nhất
+
+  function texMay() {
+    var c = document.createElement('canvas');
+    c.width = c.height = 256;
+    var g = c.getContext('2d');
+    /* vài quầng mờ chồng lên nhau cho mép mây gợn, không tròn trịa */
+    for (var i = 0; i < 9; i++) {
+      var x = 128 + (Math.random() - 0.5) * 90;
+      var y = 128 + (Math.random() - 0.5) * 60;
+      var r = 50 + Math.random() * 60;
+      var grd = g.createRadialGradient(x, y, 0, x, y, r);
+      grd.addColorStop(0, 'rgba(255,255,255,.42)');
+      grd.addColorStop(0.5, 'rgba(255,255,255,.18)');
+      grd.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = grd;
+      g.fillRect(0, 0, 256, 256);
+    }
+    var tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    return tex;
+  }
 
   function dungDinh(ctx) {
     var goc = GOC_CUOI - 0.06;
-    var y = caoTaiGoc(goc);
     var r = (R_TRONG + R_NGOAI) / 2;
 
-    var c = document.createElement('canvas');
-    c.width = 640; c.height = 160;
-    var g = c.getContext('2d');
-    g.clearRect(0, 0, c.width, c.height);
-    g.textAlign = 'center';
-    g.fillStyle = '#9a7432';
-    g.font = '600 42px ' + TX.FONT_TIEU_DE;
-    g.fillText('ĐỈNH THÁP', c.width / 2, 58);
-    g.fillStyle = '#8a8172';
-    g.font = 'italic 500 26px ' + TX.FONT_TIEU_DE;
-    g.fillText('còn đang xây', c.width / 2, 104);
+    /* màn sương: những đám mây mỏng trôi lững lờ trên các bậc cuối */
+    var tex = texMay();
+    var mauMay = [0xfffaf2, 0xf3ecf8, 0xfbf3e4];
+    o.may = [];
+    for (var i = 0; i < 34; i++) {
+      var t = Math.pow(Math.random(), 0.6);          // dồn về phía đỉnh
+      var a = SUONG_DAU + t * (GOC_CUOI + 0.05 - SUONG_DAU);
+      var rr = R_TRONG + 0.2 + Math.random() * (R_NGOAI - R_TRONG - 0.4);
+      var mat = new THREE.SpriteMaterial({
+        map: tex, color: mauMay[i % mauMay.length], transparent: true,
+        depthWrite: false, opacity: 0, rotation: Math.random() * Math.PI * 2
+      });
+      var sp = new THREE.Sprite(mat);
+      var co = 2.6 + Math.random() * 3.2;
+      sp.scale.set(co, co * 0.75, 1);
+      var y0 = caoTaiGoc(Math.min(a, GOC_CUOI)) + 0.2 + Math.random() * 3.2;
+      sp.position.set(Math.cos(a) * rr, y0, Math.sin(a) * rr);
+      ctx.scene.add(sp);
+      o.may.push({
+        sp: sp, mat: mat, x: sp.position.x, y: y0, z: sp.position.z,
+        doMo: 0.35 + t * 0.55, pha: Math.random() * 6.28, toc: 0.15 + Math.random() * 0.25
+      });
+    }
 
-    var tex = new THREE.CanvasTexture(c);
-    tex.encoding = THREE.sRGBEncoding;
-    var bien = new THREE.Mesh(
-      new THREE.PlaneGeometry(2.6, 0.65),
-      new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.9 })
-    );
-    bien.position.set(Math.cos(goc) * (R_NGOAI - 0.1), y + 2.0, Math.sin(goc) * (R_NGOAI - 0.1));
-    bien.lookAt(0, y + 2.0, 0);
-    ctx.scene.add(bien);
+    /* chữ COMING SOON lơ lửng giữa sương, quay về phía người đang leo lên */
+    var c = document.createElement('canvas');
+    c.width = 1024; c.height = 300;
+    var g = c.getContext('2d');
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.shadowColor = 'rgba(232,190,110,.9)';
+    g.shadowBlur = 28;
+    g.fillStyle = '#b8873a';
+    g.font = '600 112px ' + TX.FONT_TIEU_DE;
+    if ('letterSpacing' in g) g.letterSpacing = '14px';
+    g.fillText('COMING SOON', c.width / 2, 120);
+    g.shadowBlur = 14;
+    g.fillStyle = '#8a7a62';
+    g.font = 'italic 500 40px ' + TX.FONT_TIEU_DE;
+    if ('letterSpacing' in g) g.letterSpacing = '2px';
+    g.fillText('những phòng tiếp theo đang thành hình', c.width / 2, 222);
+
+    var texChu = new THREE.CanvasTexture(c);
+    texChu.encoding = THREE.sRGBEncoding;
+    o.matChu = new THREE.MeshBasicMaterial({
+      map: texChu, transparent: true, depthWrite: false, fog: false, opacity: 0
+    });
+    var chu = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 1.0), o.matChu);
+    var gocChu = GOC_CUOI - 0.22;
+    var yChu = caoTaiGoc(gocChu) + 1.85;
+    chu.position.set(Math.cos(gocChu) * r, yChu, Math.sin(gocChu) * r);
+    /* nhìn ngược chiều leo (tiếp tuyến −) */
+    chu.lookAt(chu.position.x + Math.sin(gocChu), yChu, chu.position.z - Math.cos(gocChu));
+    chu.renderOrder = 2;
+    ctx.scene.add(chu);
+    o.chu = chu;
+    o.yChu = yChu;
 
     o.dinh = { goc: goc, x: Math.cos(goc) * r, z: Math.sin(goc) * r };
+  }
+
+  /* sương đặc dần khi leo vào, chữ nhấp nháy chậm */
+  function capNhatDinh(dt, ctx) {
+    var t = ctx.clock;
+    var p = ctx.player.pos;
+    var a = gocCua(p.x, p.z);
+    var k = Math.max(0, Math.min(1, (a - SUONG_DAU) / (SUONG_DAY - SUONG_DAU)));
+    k = k * k * (3 - 2 * k);
+    ctx.moiTruong.suong.density = 0.032 + k * 0.07;
+
+    for (var i = 0; i < o.may.length; i++) {
+      var m = o.may[i];
+      m.sp.position.x = m.x + Math.sin(t * m.toc + m.pha) * 0.35;
+      m.sp.position.z = m.z + Math.cos(t * m.toc * 0.8 + m.pha) * 0.35;
+      m.sp.position.y = m.y + Math.sin(t * m.toc * 0.6 + m.pha * 2) * 0.18;
+      m.mat.rotation += dt * 0.03 * (i % 2 ? 1 : -1);
+      m.mat.opacity = m.doMo * (0.8 + 0.2 * Math.sin(t * 0.5 + m.pha));
+    }
+
+    /* một nhịp thở ~3,6 giây: mờ hẳn rồi sáng lên */
+    var nhip = 0.5 - 0.5 * Math.cos(t * Math.PI * 2 / 3.6);
+    o.matChu.opacity = 0.12 + 0.88 * nhip;
+    o.chu.position.y = o.yChu + Math.sin(t * 0.7) * 0.05;
+  }
+
+  /* ---------- bảng giới thiệu ở chân trụ ----------
+     Uốn cong ôm theo thân trụ, quay ra đúng chỗ người chơi đứng lúc mới
+     vào tháp. Chân dung (ảnh phạm vi công cộng, Wikimedia Commons) nhúng
+     trong assets/sanh/chan-dung.js. */
+
+  var BANG_GOC = 0.3;          // tâm bảng, quanh chỗ đứng ở chân thang
+  var BANG_NUA = 0.56;         // nửa cung bảng (rad)
+  var BANG_DAY = 0.72;         // mép dưới — cao hơn mấy bậc đầu đi qua bên dưới
+  var BANG_W = 2048, BANG_H = 960;
+
+  function dungBangGioiThieu(ctx) {
+    var r = R_TRONG + 0.035;
+    var cao = (BANG_NUA * 2 * r) * BANG_H / BANG_W;
+    var giua = BANG_DAY + cao / 2;
+    /* CylinderGeometry đặt điểm ở (r·sinθ, r·cosθ), còn tháp đo góc a với
+       (cos a, sin a), nên θ = π/2 − a. Mép trái của bảng là góc lớn. */
+    var theta0 = Math.PI / 2 - (BANG_GOC + BANG_NUA);
+
+    var c = document.createElement('canvas');
+    c.width = BANG_W; c.height = BANG_H;
+    var tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.anisotropy = 4;
+
+    var anh = {};
+    function ve() { veBang(c.getContext('2d'), anh); tex.needsUpdate = true; }
+    ve();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(ve);
+
+    /* Ảnh nhúng sẵn dạng data URI (assets/sanh/chan-dung.js), nên hiện được
+       cả khi mở bằng file:// — ảnh tải theo đường dẫn thì trình duyệt cấm
+       đưa vào WebGL. Thiếu file nhúng thì giữ bản vẽ tạm chữ cái đầu. */
+    var nhung = TX.CHAN_DUNG || {};
+    TX.VI.sanh.bang.trietGia.forEach(function (tg) {
+      if (!nhung[tg.file]) return;
+      var img = new Image();
+      img.onload = function () { anh[tg.file] = img; ve(); };
+      img.src = nhung[tg.file];
+    });
+
+    var bang = new THREE.Mesh(
+      new THREE.CylinderGeometry(r, r, cao, 48, 1, true, theta0, BANG_NUA * 2),
+      new THREE.MeshStandardMaterial({
+        map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.5,
+        roughness: 0.6, metalness: 0
+      })
+    );
+    bang.position.y = giua;
+    ctx.scene.add(bang);
+
+    /* tấm nền vàng lộ ra một chỉ quanh mép bảng */
+    var LE = 0.035;
+    var nen = new THREE.Mesh(
+      new THREE.CylinderGeometry(r - 0.012, r - 0.012, cao + LE * 2, 48, 1, true,
+        theta0 - LE / r, BANG_NUA * 2 + LE * 2 / r),
+      TX.vatLieuVang()
+    );
+    nen.position.y = giua;
+    ctx.scene.add(nen);
+
+    /* thanh vàng nổi ở mép trên và mép dưới */
+    var matVang = TX.vatLieuVang();
+    [BANG_DAY - LE, BANG_DAY + cao + LE].forEach(function (y) {
+      var thanh = new THREE.Mesh(
+        new THREE.TorusGeometry(r + 0.01, 0.02, 6, 48, BANG_NUA * 2 + LE * 2 / r),
+        matVang
+      );
+      thanh.rotation.set(Math.PI / 2, 0, BANG_GOC - BANG_NUA - LE / r);
+      thanh.position.y = y;
+      ctx.scene.add(thanh);
+    });
+  }
+
+  /* Vẽ toàn bộ mặt bảng. Gọi lại mỗi khi phông chữ hay một bức ảnh nạp xong. */
+  function veBang(g, anh) {
+    var B = TX.VI.sanh.bang;
+    var W = BANG_W, H = BANG_H;
+    var VANG = '#b08a45', NAU = '#3a3226', NHAT = '#8a7c66';
+
+    /* nền giấy kem, sáng ở giữa */
+    var nen = g.createRadialGradient(W / 2, H * 0.45, 100, W / 2, H * 0.45, W * 0.62);
+    nen.addColorStop(0, '#fffdf8');
+    nen.addColorStop(1, '#f1e8d8');
+    g.fillStyle = nen;
+    g.fillRect(0, 0, W, H);
+
+    /* khung đôi */
+    g.strokeStyle = VANG;
+    g.lineWidth = 6; g.strokeRect(22, 22, W - 44, H - 44);
+    g.lineWidth = 2; g.strokeRect(38, 38, W - 76, H - 76);
+    [[38, 38], [W - 38, 38], [38, H - 38], [W - 38, H - 38]].forEach(function (p) {
+      g.save(); g.translate(p[0], p[1]); g.rotate(Math.PI / 4);
+      g.fillStyle = VANG; g.fillRect(-9, -9, 18, 18);
+      g.restore();
+    });
+
+    g.textAlign = 'center';
+    g.textBaseline = 'alphabetic';
+
+    /* đầu bảng */
+    g.fillStyle = NAU;
+    g.font = '600 104px ' + TX.FONT_TIEU_DE;
+    g.fillText(B.tieuDe, W / 2, 160);
+
+    g.fillStyle = NHAT;
+    g.font = 'italic 500 42px ' + TX.FONT_FANTASY;
+    g.fillText(B.phu, W / 2, 218);
+    hoaVan(g, W / 2, 256, 230, VANG);
+
+    /* chân dung: hai bức mỗi bên */
+    var X = [165, 400, W - 400, W - 165];
+    B.trietGia.forEach(function (tg, i) {
+      chanDung(g, X[i], 420, 100, 132, tg, anh[tg.file], VANG, NAU, NHAT);
+    });
+
+    /* lời giới thiệu ở giữa */
+    var rong = W - 1120;
+    g.fillStyle = NAU;
+    B.than.forEach(function (dong, i) {
+      vuaChu(g, dong, '600', 40, TX.FONT_TIEU_DE, rong);
+      g.fillText(dong, W / 2, 345 + i * 58);
+    });
+
+    /* dải kí hiệu ở chân bảng */
+    g.strokeStyle = 'rgba(176,138,69,.6)'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(90, 700); g.lineTo(W - 90, 700); g.stroke();
+    var n = B.kiHieu.length, buoc = (W - 240) / n;
+    B.kiHieu.forEach(function (k, i) {
+      var cx = 120 + buoc * (i + 0.5);
+      kiHieu(g, k.hinh, cx, 786, 44, VANG, NAU);
+      g.fillStyle = NHAT;
+      vuaChu(g, k.chu, '600', 26, TX.FONT_TIEU_DE, buoc - 30);
+      g.fillText(k.chu, cx, 886);
+      if (i) {
+        g.fillStyle = 'rgba(176,138,69,.55)';
+        g.beginPath(); g.arc(120 + buoc * i, 800, 4, 0, Math.PI * 2); g.fill();
+      }
+    });
+  }
+
+  /* đặt cỡ chữ lớn nhất ≤ co mà dòng vẫn vừa bề rộng */
+  function vuaChu(g, chu, kieu, co, phong, rong) {
+    g.font = kieu + ' ' + co + 'px ' + phong;
+    while (co > 16 && g.measureText(chu).width > rong) {
+      co -= 1;
+      g.font = kieu + ' ' + co + 'px ' + phong;
+    }
+  }
+
+  /* — ✦ — */
+  function hoaVan(g, x, y, nua, mau) {
+    g.strokeStyle = mau; g.lineWidth = 2;
+    g.beginPath();
+    g.moveTo(x - nua, y); g.lineTo(x - 22, y);
+    g.moveTo(x + 22, y); g.lineTo(x + nua, y);
+    g.stroke();
+    g.fillStyle = mau;
+    g.save(); g.translate(x, y); g.rotate(Math.PI / 4);
+    g.fillRect(-7, -7, 14, 14);
+    g.restore();
+  }
+
+  /* chân dung trong khung bầu dục viền vàng, tên và năm sinh – mất bên dưới */
+  function chanDung(g, x, y, rx, ry, tg, img, vang, nau, nhat) {
+    g.save();
+    g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.clip();
+    if (img) {
+      /* phủ kín khung, lệch lên trên một chút cho thấy trọn khuôn mặt */
+      var k = Math.max(rx * 2 / img.width, ry * 2 / img.height);
+      var w = img.width * k, h = img.height * k;
+      try { g.filter = 'sepia(.35) contrast(1.05)'; } catch (e) {}
+      g.drawImage(img, x - w / 2, y - ry - (h - ry * 2) * 0.2, w, h);
+      g.filter = 'none';
+    } else {
+      var grd = g.createLinearGradient(x, y - ry, x, y + ry);
+      grd.addColorStop(0, '#e9dcc4'); grd.addColorStop(1, '#cdb894');
+      g.fillStyle = grd;
+      g.fillRect(x - rx, y - ry, rx * 2, ry * 2);
+      g.fillStyle = 'rgba(58,50,38,.55)';
+      g.font = '600 64px ' + TX.FONT_TIEU_DE;
+      g.textBaseline = 'middle';
+      g.fillText(tg.ten.split(' ').pop().charAt(0), x, y);
+      g.textBaseline = 'alphabetic';
+    }
+    g.restore();
+
+    g.strokeStyle = vang;
+    g.lineWidth = 6;
+    g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.stroke();
+    g.lineWidth = 1.5;
+    g.beginPath(); g.ellipse(x, y, rx + 10, ry + 10, 0, 0, Math.PI * 2); g.stroke();
+
+    g.fillStyle = nau;
+    vuaChu(g, tg.ten, '600', 27, TX.FONT_TIEU_DE, rx * 2 + 30);
+    g.fillText(tg.ten, x, y + ry + 50);
+    g.fillStyle = nhat;
+    g.font = 'italic 500 24px ' + TX.FONT_FANTASY;
+    g.fillText(tg.nam, x, y + ry + 80);
+  }
+
+  /* Các kí hiệu triết học, vẽ bằng nét để không phụ thuộc phông chữ */
+  function kiHieu(g, hinh, x, y, s, vang, nau) {
+    g.save();
+    g.translate(x, y);
+    g.strokeStyle = vang; g.fillStyle = vang;
+    g.lineWidth = 4; g.lineCap = 'round'; g.lineJoin = 'round';
+
+    function muiTen(px, py, goc) {
+      g.save(); g.translate(px, py); g.rotate(goc);
+      g.beginPath(); g.moveTo(0, 0); g.lineTo(-12, -7); g.lineTo(-12, 7); g.closePath(); g.fill();
+      g.restore();
+    }
+
+    if (hinh === 'vong') {
+      /* vận động không ngừng: hai mũi tên đuổi nhau thành vòng tròn */
+      [0, Math.PI].forEach(function (a0) {
+        g.beginPath(); g.arc(0, 0, s, a0 + 0.35, a0 + Math.PI - 0.25); g.stroke();
+        var a = a0 + Math.PI - 0.25;
+        muiTen(Math.cos(a) * s, Math.sin(a) * s, a + Math.PI / 2);
+      });
+      g.beginPath(); g.arc(0, 0, 6, 0, Math.PI * 2); g.fill();
+    } else if (hinh === 'tang') {
+      /* hạ tầng làm nền, thượng tầng đứng trên; mũi tên lên và xuống */
+      g.strokeRect(-s, s * 0.35, s * 2, s * 0.6);
+      g.beginPath();
+      g.moveTo(-s * 0.7, s * 0.1); g.lineTo(s * 0.7, s * 0.1);
+      g.lineTo(s * 0.3, -s); g.lineTo(-s * 0.3, -s); g.closePath(); g.stroke();
+      g.globalAlpha = 0.25; g.fillRect(-s, s * 0.35, s * 2, s * 0.6); g.globalAlpha = 1;
+      g.beginPath(); g.moveTo(-s * 1.35, s * 0.8); g.lineTo(-s * 1.35, -s * 0.5); g.stroke();
+      muiTen(-s * 1.35, -s * 0.7, -Math.PI / 2);
+      g.beginPath(); g.moveTo(s * 1.35, -s * 0.8); g.lineTo(s * 1.35, s * 0.5); g.stroke();
+      muiTen(s * 1.35, s * 0.7, Math.PI / 2);
+    } else if (hinh === 'buoc') {
+      /* lượng tích dần từng chút, rồi nhảy vọt sang chất mới */
+      for (var i = 0; i < 4; i++) {
+        var h = s * (0.35 + i * 0.12);
+        g.globalAlpha = 0.4 + i * 0.12;
+        g.fillRect(-s * 1.2 + i * s * 0.4, s - h, s * 0.28, h);
+      }
+      g.globalAlpha = 1;
+      g.beginPath();
+      g.moveTo(-s * 0.05, s * 0.05);
+      g.quadraticCurveTo(s * 0.35, -s * 1.1, s * 0.85, -s * 0.45);
+      g.stroke();
+      g.save(); g.translate(s * 0.95, -s * 0.3); g.rotate(Math.PI / 4);
+      g.fillRect(-s * 0.22, -s * 0.22, s * 0.44, s * 0.44);
+      g.restore();
+    } else if (hinh === 'doiLap') {
+      /* thống nhất và đấu tranh của các mặt đối lập */
+      g.beginPath(); g.arc(0, 0, s, 0, Math.PI * 2); g.stroke();
+      g.fillStyle = nau; g.globalAlpha = 0.85;
+      g.beginPath();
+      g.arc(0, 0, s, -Math.PI / 2, Math.PI / 2);
+      g.arc(0, s / 2, s / 2, Math.PI / 2, -Math.PI / 2, true);
+      g.arc(0, -s / 2, s / 2, Math.PI / 2, -Math.PI / 2);
+      g.closePath(); g.fill();
+      g.globalAlpha = 1;
+      g.beginPath(); g.arc(0, -s / 2, s * 0.13, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#fbf6ec';
+      g.beginPath(); g.arc(0, s / 2, s * 0.13, 0, Math.PI * 2); g.fill();
+    } else if (hinh === 'mat') {
+      /* con mắt — nhận thức bắt đầu từ trực quan sinh động */
+      g.beginPath();
+      g.moveTo(-s * 1.25, 0);
+      g.quadraticCurveTo(0, -s * 1.05, s * 1.25, 0);
+      g.quadraticCurveTo(0, s * 1.05, -s * 1.25, 0);
+      g.stroke();
+      g.beginPath(); g.arc(0, 0, s * 0.42, 0, Math.PI * 2); g.stroke();
+      g.fillStyle = nau;
+      g.beginPath(); g.arc(0, 0, s * 0.2, 0, Math.PI * 2); g.fill();
+    } else if (hinh === 'xoan') {
+      /* đường xoáy ốc — phát triển lặp lại ở trình độ cao hơn */
+      g.beginPath();
+      for (var t = 0; t <= Math.PI * 6; t += 0.08) {
+        var rr = s * 0.06 + s * 0.94 * t / (Math.PI * 6);
+        var px = Math.cos(t) * rr, py = Math.sin(t) * rr;
+        if (t === 0) g.moveTo(px, py); else g.lineTo(px, py);
+      }
+      g.stroke();
+      muiTen(s, 0, Math.PI / 2);
+    }
+    g.restore();
   }
 
   /* ---------- ánh sáng ---------- */
@@ -659,7 +1030,8 @@
     }
 
     /* đỉnh tháp */
-    S.dinh = ctx.player.distTo(o.dinh.x, o.dinh.z) < 2.2;
+    capNhatDinh(dt, ctx);
+    S.dinh = gocCua(ctx.player.pos.x, ctx.player.pos.z) > GOC_CHAN - 0.25;
 
     var V = TX.VI.sanh;
     ctx.hud.hienPanel(false);
@@ -679,7 +1051,7 @@
 
   TX.sanh = {
     id: 'sanh',
-    tieuDe: 'Tháp Xoắn Ốc',
+    tieuDe: 'Tháp Triết Học',
     chuotTuDo: true,          // thấy con trỏ, bấm thẳng vào cửa
     build: build,
     update: update,
