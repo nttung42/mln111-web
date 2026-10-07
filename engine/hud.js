@@ -15,6 +15,12 @@ TX.hud = (function () {
 
   var el = {};
   var fx = { flash: 0, burst: 0, shake: 0 };
+
+  /* thẻ chú giải: hiện ngay khi người chơi nhìn vào một vật, còn lại
+     CG_GIU giây sau khi nhìn đi chỗ khác để kịp đọc nốt; phím G tắt / bật */
+  var CG_GIU = 1.2;
+  var nghePhimG = null;   // gắn đúng một lần dù init() bị gọi lại
+  var cg = { nham: null, hien: null, mat: 0, tat: false, baoT: 0 };
   var dongCard = null;
 
   function init() {
@@ -31,6 +37,34 @@ TX.hud = (function () {
     el.card      = $('card');
     el.book      = $('book');
     el.bookList  = $('bookList');
+    el.cg        = $('chuGiai');
+
+    if (!nghePhimG) addEventListener('keydown', nghePhimG = function (e) {
+      if (e.repeat || (e.code !== 'KeyG' && e.key !== 'g' && e.key !== 'G')) return;
+      cg.tat = !cg.tat;
+      var L = TX.VI.game.chuGiai;
+      cg.hien = null;
+      el.cg.innerHTML = '<div class="cg-f">' + (cg.tat ? L.daTat : L.daBat) + '</div>';
+      el.cg.classList.add('on');
+      cg.baoT = 1.6;                   // báo ngắn rồi tự ẩn
+    });
+  }
+
+  function veCG(d) {
+    var L = TX.VI.game.chuGiai;
+    cg.hien = d;
+    cg.baoT = 0;
+    el.cg.innerHTML =
+      '<div class="cg-k">' + d.nhan + '</div>' +
+      '<div class="cg-t">' + d.tieuDe + '</div>' +
+      '<div class="cg-r vs"><b>' + L.lyThuyet + '</b><p>' + d.lyThuyet + '</p></div>' +
+      '<div class="cg-f">' + L.chan + '</div>';
+    el.cg.classList.add('on');
+  }
+
+  function anCG() {
+    cg.hien = null;
+    el.cg.classList.remove('on');
   }
 
   var H = {
@@ -74,6 +108,9 @@ TX.hud = (function () {
     },
     rung: function () { return fx.shake; },
 
+    /* chỉ loé trắng, không chữ, không rung — dùng khi chuyển cảnh */
+    loeSang: function () { fx.flash = 1; },
+
     capNhatFx: function (dt) {
       if (fx.flash > 0) {
         fx.flash = Math.max(0, fx.flash - dt * 2.6);
@@ -86,7 +123,44 @@ TX.hud = (function () {
           'translate(-50%,-50%) scale(' + (1 + (1.6 - fx.burst) * 0.12) + ')';
       }
       if (fx.shake > 0) fx.shake = Math.max(0, fx.shake - dt * 2.2);
+
+      /* chú giải: không đếm giờ khi đang đọc thẻ lớn hay sổ tay */
+      if (!H.theDangMo() && !H.soTayDangMo()) {
+        if (cg.baoT > 0) {
+          cg.baoT -= dt;
+          if (cg.baoT <= 0) anCG();
+        } else if (cg.nham && !cg.tat) {
+          if (cg.hien !== cg.nham) veCG(cg.nham);
+          cg.mat = 0;
+        } else if (cg.hien) {
+          cg.mat += dt;
+          if (cg.mat > CG_GIU) anCG();
+        }
+      }
     },
+
+    /* ---------- cảnh phim: viền điện ảnh và phụ đề ----------
+       Dùng khi phòng mượn camera để dẫn người chơi đi xem lần lượt. */
+    phim: function (on) {
+      $('phim').classList.toggle('on', !!on);
+      if (!on) $('phimChu').classList.remove('on');
+    },
+    phimChu: function (kicker, tieuDe, than) {
+      var c = $('phimChu');
+      if (!tieuDe) { c.classList.remove('on'); return; }
+      c.querySelector('.k').textContent = kicker || '';
+      c.querySelector('.t').textContent = tieuDe;
+      c.querySelector('p').innerHTML = than || '';
+      c.classList.add('on');
+    },
+
+    /* ---------- thẻ chú giải ----------
+       Phòng gọi mỗi khung hình với thứ người chơi đang nhìn vào (hoặc null).
+       d: { nhan, tieuDe, lyThuyet } — phần lý thuyết ứng với vật đó. Truyền cùng một object cho
+       cùng một vật, để thẻ không vẽ lại liên tục. Không chặn việc chơi. */
+    nhinChuGiai: function (d) { cg.nham = d || null; },
+    chuGiaiDangTat: function () { return cg.tat; },
+    anChuGiai: function () { cg.nham = null; cg.baoT = 0; anCG(); },
 
     /* ---------- thẻ nội dung toàn màn hình ----------
        Giới hạn ở một màn hình: một đoạn dẫn, bốn đến năm định nghĩa

@@ -34,6 +34,14 @@ TX.audio = (function () {
 
   return {
 
+    /* AudioContext dùng chung, cho phòng nào muốn tự dựng âm thanh riêng.
+       null nếu trình duyệt không cho; tự đánh thức nếu đang bị treo. */
+    ngu: function () {
+      var a = ac();
+      if (a && a.state === 'suspended' && a.resume) a.resume();
+      return a;
+    },
+
     /* Tiếng trầm cho bước nhảy — đứt đoạn, dứt khoát. */
     buocNhay: function () {
       var a = ac(); if (!a) return;

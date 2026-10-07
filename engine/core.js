@@ -133,6 +133,11 @@ window.TX = window.TX || {};
     nhomHienTai = new THREE.Group();
     scene.add(nhomHienTai);
 
+    /* sương và nền về mặc định — phòng nào đổi không khí thì tự đặt lại */
+    scene.fog.color.setHex(TX.MAU.nen);
+    scene.fog.density = 0.032;
+    scene.background.setHex(TX.MAU.nen);
+
     /* trả người chơi về mặc định phòng phẳng; không gian tự đặt lại nếu cần */
     player.bounds = TX.KICH_THUOC.w / 2 - 0.5;
     player.blockers = [];
@@ -143,6 +148,8 @@ window.TX = window.TX || {};
     player.spawn(0, 5.6, Math.PI);
 
     TX.hud.ngamTat(!!def.chuotTuDo);
+    TX.hud.anChuGiai();
+    TX.hud.phim(false);
     if (def.chuotTuDo && document.pointerLockElement) document.exitPointerLock();
 
     ctx = {
@@ -155,10 +162,12 @@ window.TX = window.TX || {};
       audio: TX.audio,
       soTay: TX.soTay,
       text: TX.VI[id] || {},
+      /* sương và màu nền của cảnh, cho phòng muốn có không khí riêng */
+      moiTruong: { suong: scene.fog, nen: scene.background },
       /* danh sách phòng, để sảnh dựng cửa */
       danhSachPhong: TX.thuTuPhong.map(function (rid) {
         var p = TX.phongs[rid];
-        return { id: rid, tieuDe: p.tieuDe, nhanNgan: p.nhanNgan, moTa: p.moTa, xong: !!daXong[rid] };
+        return { id: rid, tieuDe: p.tieuDe, nhanNgan: p.nhanNgan, moTa: p.moTa, mauCua: p.mauCua, xong: !!daXong[rid] };
       }),
       /* phòng gọi khi đã dạy xong khái niệm của nó */
       hoanThanh: function () { daXong[id] = true; },
