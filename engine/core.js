@@ -36,17 +36,21 @@ window.TX = window.TX || {};
 
     camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.1, 120);
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    /* Điện thoại: bỏ khử răng cưa, hạ độ phân giải và bóng đổ một bậc
+       để giữ khung hình mượt — màn hình nhỏ khó thấy khác biệt. */
+    var nhe = TX.camUng;
+    renderer = new THREE.WebGLRenderer({ antialias: !nhe, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, nhe ? 1.5 : 2));
     renderer.setSize(innerWidth, innerHeight);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = nhe ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
     document.getElementById('stage').appendChild(renderer.domElement);
 
     player = new TX.Player(renderer.domElement);
     player.onModeChange = capNhatGoiY;
     TX.player = player;      // để gỡ lỗi từ console
+    TX.touch.khoiTao(player, renderer.domElement);
 
     addEventListener('resize', function () {
       camera.aspect = innerWidth / innerHeight;
@@ -69,6 +73,25 @@ window.TX = window.TX || {};
     var nutVeSanh = document.getElementById('veSanh');
     nutVeSanh.innerHTML = '← ' + TX.VI.game.veSanh + '<kbd>ESC</kbd>';
     nutVeSanh.addEventListener('click', function () { hoiRoiPhong(); nutVeSanh.blur(); });
+
+    /* Nút tròn góc phải trên cùng: tắt/bật âm thanh. Phím M làm tương tự,
+       vì lúc khoá con trỏ không bấm được nút. */
+    var nutTieng = document.getElementById('tatTieng');
+    function veNutTieng() {
+      var t = TX.audio.dangTat();
+      nutTieng.classList.toggle('tat', t);
+      nutTieng.setAttribute('aria-label', t ? 'Bật âm thanh' : 'Tắt âm thanh');
+      nutTieng.title = (t ? 'Bật âm thanh' : 'Tắt âm thanh') + ' (M)';
+    }
+    function doiTieng() { TX.audio.tatTieng(!TX.audio.dangTat()); veNutTieng(); }
+    nutTieng.addEventListener('click', function () { doiTieng(); nutTieng.blur(); });
+    addEventListener('keydown', function (e) {
+      if (e.code !== 'KeyM' || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      var dich = e.target;
+      if (dich && (dich.tagName === 'INPUT' || dich.tagName === 'TEXTAREA' || dich.isContentEditable)) return;
+      doiTieng();
+    });
+    veNutTieng();
 
     /* Esc trong phòng: hỏi có muốn về sảnh không.
        Khi đang khoá con trỏ, trình duyệt dùng Esc để nhả khoá và thường
@@ -196,6 +219,8 @@ window.TX = window.TX || {};
     player.chuotTuDo = !!def.chuotTuDo;
     player.spawn(0, 5.6);
     document.getElementById('veSanh').classList.toggle('on', def !== TX.sanh);
+    TX.touch.datLai(def === TX.sanh);
+    TX.audio.nhacNen(def === TX.sanh ? 'sanh' : 'phong');
 
     TX.hud.ngamTat(!!def.chuotTuDo);
     TX.hud.anChuGiai();
@@ -265,6 +290,14 @@ window.TX = window.TX || {};
   }
 
   function bangPhim() {
+    if (TX.camUng) {
+      return '<div class="keys"><span><kbd>Cần trái</kbd>di chuyển, đẩy hết cỡ để chạy</span>' +
+             '<span><kbd>Vuốt màn hình</kbd>nhìn quanh</span>' +
+             '<span><kbd class="kt">✦</kbd>tác động</span><span><kbd class="kt">↺</kbd>tác động ngược</span>' +
+             '<span><kbd>Sổ tay</kbd>xem lại khái niệm</span>' +
+             (phongHienTai && phongHienTai !== TX.sanh ? '<span><kbd>← Sảnh</kbd>rời phòng</span>' : '') +
+             '</div>';
+    }
     var tacDong = player.lockBroken
       ? '<span><kbd>F</kbd>tác động</span><span><kbd>R</kbd>tác động ngược</span>' +
         '<span><kbd>Kéo chuột</kbd>nhìn quanh</span>'

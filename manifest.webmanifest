@@ -1,0 +1,12 @@
+{
+  "name": "Tháp Triết Học",
+  "short_name": "Tháp Triết Học",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#f3eee7",
+  "theme_color": "#f3eee7",
+  "icons": [
+    { "src": "assets/favicon-thap.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
