@@ -145,7 +145,7 @@ window.TX = window.TX || {};
     player.constrain = null;
     player.onClick = null;
     player.chuotTuDo = !!def.chuotTuDo;
-    player.spawn(0, 5.6, Math.PI);
+    player.spawn(0, 5.6);
 
     TX.hud.ngamTat(!!def.chuotTuDo);
     TX.hud.anChuGiai();
