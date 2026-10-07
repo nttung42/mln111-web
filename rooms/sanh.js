@@ -23,6 +23,7 @@
 
   var GOC_DAU = 0.16;   // chừa một khoảng ở chân thang
   var GOC_CUOI = Math.PI * 2 - 0.16;
+  var GOC_CHAN = GOC_CUOI - 0.55;   // bức màn sương ở đỉnh thang — không cho đi qua
   var TAM_CUA = 1.9;    // khoảng cách đứng đủ gần để bước vào cửa
 
   var S, o;
@@ -70,9 +71,9 @@
         var k2 = (R_NGOAI - 0.35) / r;
         pos.x *= k2; pos.z *= k2;
       }
-      /* không cho bước qua khe nối giữa chân thang và đỉnh thang */
+      /* không cho bước qua khe nối ở chân thang, cũng không cho đi vào màn sương */
       var a = gocCua(pos.x, pos.z);
-      if (a < GOC_DAU || a > GOC_CUOI) { pos.x = truocX; pos.z = truocZ; }
+      if (a < GOC_DAU || a > GOC_CHAN) { pos.x = truocX; pos.z = truocZ; }
     };
 
     /* đặt người chơi ở chân thang, hoặc cạnh cánh cửa vừa bước ra */
@@ -568,36 +569,121 @@
     );
   }
 
-  /* ---------- đỉnh tháp ---------- */
+  /* ---------- đỉnh tháp: chìm trong sương ----------
+     Mấy bậc cuối tan vào một bức màn sương ngọc trai — những phòng tiếp
+     theo chưa thành hình. Giữa màn sương, chữ COMING SOON thở chậm. */
+
+  var SUONG_DAU = GOC_CUOI - 0.75;   // sương bắt đầu dày dần từ đây
+  var SUONG_DAY = GOC_CHAN;          // tới mép màn sương thì đặc nhất
+
+  function texMay() {
+    var c = document.createElement('canvas');
+    c.width = c.height = 256;
+    var g = c.getContext('2d');
+    /* vài quầng mờ chồng lên nhau cho mép mây gợn, không tròn trịa */
+    for (var i = 0; i < 9; i++) {
+      var x = 128 + (Math.random() - 0.5) * 90;
+      var y = 128 + (Math.random() - 0.5) * 60;
+      var r = 50 + Math.random() * 60;
+      var grd = g.createRadialGradient(x, y, 0, x, y, r);
+      grd.addColorStop(0, 'rgba(255,255,255,.42)');
+      grd.addColorStop(0.5, 'rgba(255,255,255,.18)');
+      grd.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = grd;
+      g.fillRect(0, 0, 256, 256);
+    }
+    var tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    return tex;
+  }
 
   function dungDinh(ctx) {
     var goc = GOC_CUOI - 0.06;
-    var y = caoTaiGoc(goc);
     var r = (R_TRONG + R_NGOAI) / 2;
 
-    var c = document.createElement('canvas');
-    c.width = 640; c.height = 160;
-    var g = c.getContext('2d');
-    g.clearRect(0, 0, c.width, c.height);
-    g.textAlign = 'center';
-    g.fillStyle = '#9a7432';
-    g.font = '600 42px ' + TX.FONT_TIEU_DE;
-    g.fillText('ĐỈNH THÁP', c.width / 2, 58);
-    g.fillStyle = '#8a8172';
-    g.font = 'italic 500 26px ' + TX.FONT_TIEU_DE;
-    g.fillText('còn đang xây', c.width / 2, 104);
+    /* màn sương: những đám mây mỏng trôi lững lờ trên các bậc cuối */
+    var tex = texMay();
+    var mauMay = [0xfffaf2, 0xf3ecf8, 0xfbf3e4];
+    o.may = [];
+    for (var i = 0; i < 34; i++) {
+      var t = Math.pow(Math.random(), 0.6);          // dồn về phía đỉnh
+      var a = SUONG_DAU + t * (GOC_CUOI + 0.05 - SUONG_DAU);
+      var rr = R_TRONG + 0.2 + Math.random() * (R_NGOAI - R_TRONG - 0.4);
+      var mat = new THREE.SpriteMaterial({
+        map: tex, color: mauMay[i % mauMay.length], transparent: true,
+        depthWrite: false, opacity: 0, rotation: Math.random() * Math.PI * 2
+      });
+      var sp = new THREE.Sprite(mat);
+      var co = 2.6 + Math.random() * 3.2;
+      sp.scale.set(co, co * 0.75, 1);
+      var y0 = caoTaiGoc(Math.min(a, GOC_CUOI)) + 0.2 + Math.random() * 3.2;
+      sp.position.set(Math.cos(a) * rr, y0, Math.sin(a) * rr);
+      ctx.scene.add(sp);
+      o.may.push({
+        sp: sp, mat: mat, x: sp.position.x, y: y0, z: sp.position.z,
+        doMo: 0.35 + t * 0.55, pha: Math.random() * 6.28, toc: 0.15 + Math.random() * 0.25
+      });
+    }
 
-    var tex = new THREE.CanvasTexture(c);
-    tex.encoding = THREE.sRGBEncoding;
-    var bien = new THREE.Mesh(
-      new THREE.PlaneGeometry(2.6, 0.65),
-      new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.9 })
-    );
-    bien.position.set(Math.cos(goc) * (R_NGOAI - 0.1), y + 2.0, Math.sin(goc) * (R_NGOAI - 0.1));
-    bien.lookAt(0, y + 2.0, 0);
-    ctx.scene.add(bien);
+    /* chữ COMING SOON lơ lửng giữa sương, quay về phía người đang leo lên */
+    var c = document.createElement('canvas');
+    c.width = 1024; c.height = 300;
+    var g = c.getContext('2d');
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.shadowColor = 'rgba(232,190,110,.9)';
+    g.shadowBlur = 28;
+    g.fillStyle = '#b8873a';
+    g.font = '600 112px ' + TX.FONT_TIEU_DE;
+    if ('letterSpacing' in g) g.letterSpacing = '14px';
+    g.fillText('COMING SOON', c.width / 2, 120);
+    g.shadowBlur = 14;
+    g.fillStyle = '#8a7a62';
+    g.font = 'italic 500 40px ' + TX.FONT_TIEU_DE;
+    if ('letterSpacing' in g) g.letterSpacing = '2px';
+    g.fillText('những phòng tiếp theo đang thành hình', c.width / 2, 222);
+
+    var texChu = new THREE.CanvasTexture(c);
+    texChu.encoding = THREE.sRGBEncoding;
+    o.matChu = new THREE.MeshBasicMaterial({
+      map: texChu, transparent: true, depthWrite: false, fog: false, opacity: 0
+    });
+    var chu = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 1.0), o.matChu);
+    var gocChu = GOC_CUOI - 0.22;
+    var yChu = caoTaiGoc(gocChu) + 1.85;
+    chu.position.set(Math.cos(gocChu) * r, yChu, Math.sin(gocChu) * r);
+    /* nhìn ngược chiều leo (tiếp tuyến −) */
+    chu.lookAt(chu.position.x + Math.sin(gocChu), yChu, chu.position.z - Math.cos(gocChu));
+    chu.renderOrder = 2;
+    ctx.scene.add(chu);
+    o.chu = chu;
+    o.yChu = yChu;
 
     o.dinh = { goc: goc, x: Math.cos(goc) * r, z: Math.sin(goc) * r };
+  }
+
+  /* sương đặc dần khi leo vào, chữ nhấp nháy chậm */
+  function capNhatDinh(dt, ctx) {
+    var t = ctx.clock;
+    var p = ctx.player.pos;
+    var a = gocCua(p.x, p.z);
+    var k = Math.max(0, Math.min(1, (a - SUONG_DAU) / (SUONG_DAY - SUONG_DAU)));
+    k = k * k * (3 - 2 * k);
+    ctx.moiTruong.suong.density = 0.032 + k * 0.07;
+
+    for (var i = 0; i < o.may.length; i++) {
+      var m = o.may[i];
+      m.sp.position.x = m.x + Math.sin(t * m.toc + m.pha) * 0.35;
+      m.sp.position.z = m.z + Math.cos(t * m.toc * 0.8 + m.pha) * 0.35;
+      m.sp.position.y = m.y + Math.sin(t * m.toc * 0.6 + m.pha * 2) * 0.18;
+      m.mat.rotation += dt * 0.03 * (i % 2 ? 1 : -1);
+      m.mat.opacity = m.doMo * (0.8 + 0.2 * Math.sin(t * 0.5 + m.pha));
+    }
+
+    /* một nhịp thở ~3,6 giây: mờ hẳn rồi sáng lên */
+    var nhip = 0.5 - 0.5 * Math.cos(t * Math.PI * 2 / 3.6);
+    o.matChu.opacity = 0.12 + 0.88 * nhip;
+    o.chu.position.y = o.yChu + Math.sin(t * 0.7) * 0.05;
   }
 
   /* ---------- bảng giới thiệu ở chân trụ ----------
@@ -944,7 +1030,8 @@
     }
 
     /* đỉnh tháp */
-    S.dinh = ctx.player.distTo(o.dinh.x, o.dinh.z) < 2.2;
+    capNhatDinh(dt, ctx);
+    S.dinh = gocCua(ctx.player.pos.x, ctx.player.pos.z) > GOC_CHAN - 0.25;
 
     var V = TX.VI.sanh;
     ctx.hud.hienPanel(false);

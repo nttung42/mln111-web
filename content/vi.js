@@ -67,7 +67,7 @@ TX.VI = {
     leoLen:   'Leo lên và tìm một cánh cửa sáng',
     vaoCua:   'Giữ <kbd>F</kbd> để bước vào, hoặc bấm chuột vào cánh cửa',
     bamCua:   'Bấm chuột để bước vào cánh cửa này',
-    dinhThap: 'Đỉnh tháp còn đang xây — những phòng tiếp theo sẽ mở ở đây',
+    dinhThap: 'Phía trên chìm trong sương — những phòng tiếp theo sắp mở',
 
     /* bảng giới thiệu gắn ở chân trụ tháp — mỗi dòng phải vừa một hàng trên bảng */
     bang: {
