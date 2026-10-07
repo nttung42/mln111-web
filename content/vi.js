@@ -23,7 +23,7 @@ TX.VI = {
 
   /* ---------- Chung ---------- */
   game: {
-    ten: 'Tháp Xoắn Ốc',
+    ten: 'Tháp Triết Học',
     phu: 'Sản phẩm học tập môn MLN111 · Triết học Mác – Lênin',
     vaoPhong: 'Bước vào phòng',
     troLai: 'Trở lại phòng',
@@ -55,7 +55,7 @@ TX.VI = {
   },
 
   sanh: {
-    tieuDe: 'Tháp Xoắn Ốc',
+    tieuDe: 'Tháp Triết Học',
     dan: 'Triết học Mác – Lênin nói về <em>quan hệ</em> và <em>quá trình</em>. ' +
          'Chữ viết chỉ mô tả được trạng thái tĩnh của những thứ vốn dĩ là vận động. ' +
          'Ở đây bạn sẽ tự tay vận hành chúng.',
@@ -67,6 +67,34 @@ TX.VI = {
     leoLen:   'Leo lên và tìm một cánh cửa sáng',
     vaoCua:   'Giữ <kbd>F</kbd> để bước vào, hoặc bấm chuột vào cánh cửa',
     bamCua:   'Bấm chuột để bước vào cánh cửa này',
-    dinhThap: 'Đỉnh tháp còn đang xây — những phòng tiếp theo sẽ mở ở đây'
+    dinhThap: 'Đỉnh tháp còn đang xây — những phòng tiếp theo sẽ mở ở đây',
+
+    /* bảng giới thiệu gắn ở chân trụ tháp — mỗi dòng phải vừa một hàng trên bảng */
+    bang: {
+      tieuDe: 'Tháp Triết Học',
+      phu: 'một bảo tàng triết học có thể bước vào',
+      than: [
+        'Mỗi cánh cửa dọc cầu thang mở ra một căn phòng.',
+        'Ở đó, một quy luật hay phạm trù của phép biện chứng',
+        'duy vật không chỉ được giảng — mà được bạn tự tay vận hành.',
+        'Cầu thang xoắn cũng là một bài học: phát triển đi lên',
+        'theo đường xoáy ốc, lặp lại cái cũ ở trình độ cao hơn.'
+      ],
+      trietGia: [
+        { file: 'hegel.jpg',  ten: 'G. W. F. Hegel', nam: '1770 – 1831' },
+        { file: 'marx.jpg',   ten: 'Karl Marx',      nam: '1818 – 1883' },
+        { file: 'engels.jpg', ten: 'Friedrich Engels', nam: '1820 – 1895' },
+        { file: 'lenin.jpg',  ten: 'V. I. Lênin',    nam: '1870 – 1924' }
+      ],
+      /* kí hiệu ở dải dưới cùng, mỗi kí hiệu ứng với một phòng */
+      kiHieu: [
+        { hinh: 'vong',   chu: 'Biện chứng' },
+        { hinh: 'tang',   chu: 'Hạ tầng – Thượng tầng' },
+        { hinh: 'buoc',   chu: 'Lượng – Chất' },
+        { hinh: 'doiLap', chu: 'Mặt đối lập' },
+        { hinh: 'mat',    chu: 'Nhận thức' },
+        { hinh: 'xoan',   chu: 'Phủ định của phủ định' }
+      ]
+    }
   }
 };

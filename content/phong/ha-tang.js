@@ -5,7 +5,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 TX.VI['ha-tang'] = {
-  tang: 'Tháp Xoắn Ốc · Tầng III — Thành Phố',
+  tang: 'Tháp Triết Học · Tầng III — Thành Phố',
   ten: 'Phòng — Cơ sở hạ tầng và Kiến trúc thượng tầng',
   chuong: 'MLN111 · Chương 3 — Chủ nghĩa duy vật lịch sử',
 

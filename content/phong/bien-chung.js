@@ -5,7 +5,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 TX.VI['bien-chung'] = {
-  tang: 'Tháp Xoắn Ốc · Tầng I — Sương Mù',
+  tang: 'Tháp Triết Học · Tầng I — Sương Mù',
   ten: 'Phòng — Hai cách nhìn',
   chuong: 'MLN111 · Chương 1 — Khái luận về triết học',
 

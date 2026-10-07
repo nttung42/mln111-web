@@ -5,7 +5,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 TX.VI['nhan-thuc'] = {
-  tang: 'Tháp Xoắn Ốc · Tầng II — Cổng Dị Giới',
+  tang: 'Tháp Triết Học · Tầng II — Cổng Dị Giới',
   ten: 'Phòng — Lý luận nhận thức',
   chuong: 'MLN111 · Chương 2 — Chủ nghĩa duy vật biện chứng · Mục 2.3',
 

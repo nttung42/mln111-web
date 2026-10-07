@@ -5,7 +5,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 TX.VI['phu-dinh'] = {
-  tang: 'Tháp Xoắn Ốc · Tầng II — Lò Luyện',
+  tang: 'Tháp Triết Học · Tầng II — Lò Luyện',
   ten: 'Phòng III — Phủ định của phủ định',
   chuong: 'MLN111 · Chương 2 — Chủ nghĩa duy vật biện chứng',
 

@@ -5,7 +5,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 TX.VI['mau-thuan'] = {
-  tang: 'Tháp Xoắn Ốc · Tầng II — Lò Luyện',
+  tang: 'Tháp Triết Học · Tầng II — Lò Luyện',
   ten: 'Phòng II — Thống nhất và đấu tranh của các mặt đối lập',
   chuong: 'MLN111 · Chương 2 — Chủ nghĩa duy vật biện chứng',
 
