@@ -8,6 +8,11 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link rel="icon" type="image/png" href="assets/favicon-thap.png" />
   <link rel="apple-touch-icon" href="assets/favicon-thap.png" />
+  <!-- thêm vào màn hình chính: mở toàn màn hình, xoay ngang (Android) -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#f3eee7" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -1143,6 +1148,376 @@
     #card .cg-muc.khoa p {
       color: var(--mo);
     }
+
+    /* ═══ cảm ứng: điện thoại / máy tính bảng, chơi ở màn hình ngang ═══
+       html.cam-ung do engine/touch.js gắn khi thiết bị dùng ngón tay. */
+    #camUng,
+    #xoayNgang,
+    #cuDongSo {
+      display: none;
+    }
+
+    html.cam-ung body {
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html.cam-ung canvas {
+      touch-action: none;
+    }
+
+    html.cam-ung #roomTag {
+      top: max(10px, env(safe-area-inset-top));
+      left: max(12px, env(safe-area-inset-left));
+      max-width: 200px;
+      padding: 6px 12px 7px;
+      border-radius: 10px;
+    }
+
+    html.cam-ung #tagKicker {
+      font-size: 9px;
+    }
+
+    html.cam-ung #tagTitle {
+      font-size: 18px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    html.cam-ung #tatTieng {
+      top: max(10px, env(safe-area-inset-top));
+      right: max(12px, env(safe-area-inset-right));
+      width: 34px;
+      height: 34px;
+    }
+
+    html.cam-ung #veSanh {
+      top: max(10px, env(safe-area-inset-top));
+      right: calc(max(12px, env(safe-area-inset-right)) + 42px);
+      padding: 8px 14px;
+      font-size: 12.5px;
+    }
+
+    html.cam-ung #veSanh kbd {
+      display: none;
+    }
+
+    /* hướng dẫn: hàng trên cùng, giữa nhãn phòng và nút về sảnh */
+    html.cam-ung #hint,
+    html.cam-ung body.lc-phim #hint {
+      top: max(12px, env(safe-area-inset-top));
+      bottom: auto;
+      max-width: calc(100vw - 430px);
+      font-size: 11.5px;
+      line-height: 1.45;
+      padding: 6px 12px;
+      border-radius: 14px;
+    }
+
+    html.cam-ung kbd.kt {
+      color: #fff;
+      background: linear-gradient(135deg, #d9ac5c, #b8873a);
+      border-color: #a5762c;
+    }
+
+    /* bảng chỉ số: thu nhỏ, nằm giữa cần điều khiển và cụm nút */
+    html.cam-ung #panel {
+      bottom: max(8px, env(safe-area-inset-bottom));
+      width: 560px;
+      transform: translateX(-50%) scale(.62);
+      transform-origin: 50% 100%;
+    }
+
+    html.cam-ung body.lc-phim #panel {
+      bottom: calc(9vh + 6px);
+    }
+
+    html.cam-ung #burstT {
+      font-size: 34px;
+    }
+
+    /* chú giải: cột trái, dưới nhãn phòng */
+    html.cam-ung #chuGiai {
+      top: calc(max(10px, env(safe-area-inset-top)) + 58px);
+      left: max(12px, env(safe-area-inset-left));
+      right: auto;
+      width: min(280px, 36vw);
+      max-height: calc(100% - 80px);
+      overflow: hidden;
+      padding: 10px 13px 8px;
+      transform: translateX(-16px);
+    }
+
+    html.cam-ung #chuGiai.on {
+      transform: none;
+    }
+
+    html.cam-ung #chuGiai .cg-t {
+      font-size: 18px;
+      margin: 2px 0 6px;
+    }
+
+    html.cam-ung #chuGiai .cg-r p,
+    html.cam-ung #chuGiai .cg-r.vs p {
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    html.cam-ung #phimChu .t {
+      font-size: 20px;
+    }
+
+    html.cam-ung #phimChu p {
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    /* thẻ nội dung và sổ tay: vừa một màn hình ngang thấp, cuộn được */
+    html.cam-ung #veil,
+    html.cam-ung #book {
+      padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
+    }
+
+    html.cam-ung #card,
+    html.cam-ung #bookInner {
+      width: min(720px, 100%);
+      max-height: calc(100vh - 20px);
+      max-height: calc(100dvh - 20px);
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    html.cam-ung #cuDongSo {
+      display: inline-block;
+    }
+
+    @media (max-height: 540px) {
+
+      html.cam-ung #card,
+      html.cam-ung #bookInner {
+        padding: 20px 24px 18px;
+      }
+
+      html.cam-ung #card h1 {
+        font-size: 26px;
+        margin: 4px 0 8px;
+      }
+
+      html.cam-ung #card h2 {
+        font-size: 18px;
+        margin: 14px 0 6px;
+      }
+
+      html.cam-ung #card p,
+      html.cam-ung #card dd {
+        font-size: 13.5px;
+        line-height: 1.6;
+      }
+
+      html.cam-ung #bookInner>h2 {
+        font-size: 24px;
+      }
+
+      html.cam-ung .keys {
+        margin: 10px 0 4px;
+        gap: 6px 16px;
+        font-size: 12.5px;
+      }
+
+      html.cam-ung .go {
+        margin-top: 14px;
+        padding: 12px 26px;
+      }
+    }
+
+    /* ── cụm điều khiển ── */
+    html.cam-ung #camUng {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    /* cần điều khiển nổi: mờ ở chỗ mặc định, hiện rõ dưới ngón tay */
+    #cuCan {
+      position: absolute;
+      left: calc(max(16px, env(safe-area-inset-left)) + 72px);
+      top: calc(100% - 88px);
+      width: 112px;
+      height: 112px;
+      margin: -56px 0 0 -56px;
+      border-radius: 50%;
+      background: rgba(255, 252, 247, .3);
+      border: 1.5px solid rgba(184, 140, 70, .45);
+      box-shadow: inset 0 0 18px rgba(255, 255, 255, .5), var(--bong);
+      opacity: .35;
+      transition: opacity .15s;
+    }
+
+    #cuCan.on {
+      opacity: 1;
+    }
+
+    #cuNum {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 50px;
+      height: 50px;
+      margin: -25px 0 0 -25px;
+      border-radius: 50%;
+      background: linear-gradient(160deg, #fffdf9, #efe4d2);
+      border: 1px solid var(--vangN);
+      box-shadow: 0 4px 14px -4px rgba(120, 90, 50, .5);
+    }
+
+    #cuNut {
+      position: absolute;
+      right: max(18px, env(safe-area-inset-right));
+      bottom: max(14px, env(safe-area-inset-bottom));
+      width: 190px;
+      height: 150px;
+    }
+
+    #cuNut button {
+      pointer-events: auto;
+      touch-action: none;
+      padding: 0;
+      font-family: inherit;
+      color: var(--muc);
+      background: var(--kinh);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--vien);
+      box-shadow: var(--bong);
+      transition: transform .08s, box-shadow .15s;
+    }
+
+    #cuNut button.an {
+      transform: scale(.92);
+    }
+
+    .cu-tron {
+      position: absolute;
+      border-radius: 50%;
+      line-height: 1;
+    }
+
+    .cu-chinh {
+      right: 0;
+      bottom: 0;
+      width: 84px;
+      height: 84px;
+      font-size: 34px;
+    }
+
+    #cuNut .cu-chinh {
+      color: #fff;
+      background: linear-gradient(135deg, #d9ac5c, #b8873a 60%, #a5762c);
+      border-color: rgba(255, 255, 255, .55);
+    }
+
+    #cuNut .cu-chinh.an {
+      box-shadow: 0 0 0 6px rgba(226, 197, 138, .45), 0 0 26px rgba(226, 183, 100, .9);
+    }
+
+    .cu-phu {
+      right: 94px;
+      bottom: 4px;
+      width: 62px;
+      height: 62px;
+      font-size: 27px;
+    }
+
+    .cu-hang {
+      position: absolute;
+      right: 0;
+      bottom: 96px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .cu-nho {
+      height: 40px;
+      min-width: 40px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    #cuNut .cu-chu {
+      padding: 0 14px;
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+
+    #cuE {
+      display: none;
+    }
+
+    #cuE.on {
+      display: block;
+    }
+
+    html.o-sanh .cu-phu {
+      display: none;
+    }
+
+    /* ── màn hình dọc: che lại, nhắc xoay ngang ── */
+    @media (orientation: portrait) {
+      html.cam-ung #xoayNgang {
+        display: flex;
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        text-align: center;
+        background: radial-gradient(ellipse at 50% 40%, #fffdf8, var(--nen));
+      }
+    }
+
+    #xoayNgang h2 {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 600;
+      margin: 22px 0 8px;
+    }
+
+    #xoayNgang p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muc2);
+      margin: 0;
+    }
+
+    .xn-may {
+      width: 44px;
+      height: 76px;
+      margin: 0 auto;
+      border: 3px solid var(--vang);
+      border-radius: 10px;
+      animation: xnXoay 2.4s ease-in-out infinite;
+    }
+
+    @keyframes xnXoay {
+
+      0%,
+      25% {
+        transform: rotate(0);
+      }
+
+      55%,
+      100% {
+        transform: rotate(-90deg);
+      }
+    }
   </style>
 </head>
 
@@ -1225,6 +1600,7 @@
   <script src="content/phong/nhan-thuc.js"></script>
   <script src="engine/anim.js"></script>
   <script src="engine/audio.js"></script>
+  <script src="engine/touch.js"></script>
   <script src="engine/hud.js"></script>
   <script src="engine/player.js"></script>
   <script src="engine/room.js"></script>

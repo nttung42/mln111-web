@@ -13,6 +13,9 @@ TX.hud = (function () {
 
   var $ = function (id) { return document.getElementById(id); };
 
+  /* Trên máy cảm ứng, đổi "Chuột trái", "F"... thành tên nút trên màn hình. */
+  var nhan = function (html) { return TX.touch ? TX.touch.doiNhan(html) : html; };
+
   var el = {};
   var fx = { flash: 0, burst: 0, shake: 0 };
 
@@ -58,7 +61,7 @@ TX.hud = (function () {
       '<div class="cg-k">' + d.nhan + '</div>' +
       '<div class="cg-t">' + d.tieuDe + '</div>' +
       '<div class="cg-r vs"><b>' + L.lyThuyet + '</b><p>' + d.lyThuyet + '</p></div>' +
-      '<div class="cg-f">' + L.chan + '</div>';
+      '<div class="cg-f">' + nhan(L.chan) + '</div>';
     el.cg.classList.add('on');
   }
 
@@ -88,12 +91,16 @@ TX.hud = (function () {
     },
 
     /* ---------- dòng hướng dẫn thao tác ---------- */
-    goiY: function (html) { el.hint.innerHTML = html || ''; },
+    goiY: function (html) {
+      if (TX.touch && TX.touch.bat) TX.touch.ghiNhanGoiY(html);
+      html = nhan(html) || '';
+      if (el.hint.innerHTML !== html) el.hint.innerHTML = html;
+    },
     hienGoiY: function (on) { el.hint.classList.toggle('on', !!on); },
 
     /* ---------- bảng chỉ số, nội dung do từng phòng cung cấp ---------- */
     datPanel: function (html) {
-      el.panel.innerHTML = html || '';
+      el.panel.innerHTML = nhan(html) || '';
       return el.panel;
     },
     hienPanel: function (on) { el.panel.classList.toggle('on', !!on); },
@@ -150,7 +157,7 @@ TX.hud = (function () {
       if (!tieuDe) { c.classList.remove('on'); return; }
       c.querySelector('.k').textContent = kicker || '';
       c.querySelector('.t').textContent = tieuDe;
-      c.querySelector('p').innerHTML = than || '';
+      c.querySelector('p').innerHTML = nhan(than) || '';
       c.classList.add('on');
     },
 
@@ -165,14 +172,14 @@ TX.hud = (function () {
     /* ---------- thẻ nội dung toàn màn hình ----------
        Giới hạn ở một màn hình: một đoạn dẫn, bốn đến năm định nghĩa
        ngắn, một trích dẫn. Dài hơn thì không ai đọc. */
-    the: function (html, nhan, khiDong) {
+    the: function (html, nhanNut, khiDong) {
       /* Nhả khoá con trỏ TRƯỚC khi hiện thẻ. Thiếu dòng này thì chuột vẫn
          bị khoá, người chơi không bấm được nút, thẻ không đóng được — và
          vì thẻ còn mở nên mọi thao tác trong phòng cũng chết theo. */
       if (document.pointerLockElement) document.exitPointerLock();
 
-      el.card.innerHTML = html +
-        '<button class="go" id="cardGo">' + (nhan || TX.VI.game.tiepTuc) + '</button>';
+      el.card.innerHTML = nhan(html) +
+        '<button class="go" id="cardGo">' + (nhanNut || TX.VI.game.tiepTuc) + '</button>';
       el.veil.classList.remove('hide');
       dongCard = khiDong || null;
       TX.audio.the();
@@ -186,7 +193,7 @@ TX.hud = (function () {
     hoi: function (html, nhanCo, nhanKhong, khiCo, khiKhong) {
       if (document.pointerLockElement) document.exitPointerLock();
 
-      el.card.innerHTML = html +
+      el.card.innerHTML = nhan(html) +
         '<button class="go" id="cardGo">' + nhanCo + '</button>' +
         '<button class="go phu" id="cardKhong">' + nhanKhong + '</button>';
       el.veil.classList.remove('hide');

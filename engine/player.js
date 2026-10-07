@@ -5,6 +5,8 @@
    - Có pointer lock (chạy qua http/localhost): chuột tự do, nút chuột
      trái/phải là tác động.
    - Không có (mở bằng file://): kéo chuột để nhìn, phím F/R là tác động.
+   - Cảm ứng (TX.camUng): engine/touch.js cấp cần điều khiển, vuốt nhìn
+     và nút tác động qua datTruc / nhinThem / datTacDong / cham.
    ═══════════════════════════════════════════════════════════════════ */
 
 window.TX = window.TX || {};
@@ -37,12 +39,18 @@ TX.Player = function (dom) {
   var keys = Object.create(null);
   var dragging = false;
   var mouseAct = 0;         // +1 / -1 từ nút chuột
+  var touchAct = 0;         // +1 / -1 từ nút cảm ứng
+  var truc = { x: 0, y: 0 };  // cần điều khiển analog: x sang phải, y tiến lên
   var bobT = 0;
 
   /* --- môi trường không cho khoá con trỏ --- */
   if (!('requestPointerLock' in dom) || location.protocol === 'file:') {
     P.lockBroken = true;
   }
+
+  /* --- cảm ứng: không có con trỏ để khoá; ngắm luôn ở giữa màn hình --- */
+  P.camUng = !!TX.camUng;
+  if (P.camUng) P.lockBroken = true;
 
   /* ---------- bàn phím ---------- */
   /* Ghi cả e.code lẫn e.key: bộ gõ tiếng Việt và vài bố cục bàn phím
@@ -65,6 +73,8 @@ TX.Player = function (dom) {
   addEventListener('blur', function () {
     for (var k in keys) keys[k] = false;
     mouseAct = 0;
+    touchAct = 0;
+    truc.x = truc.y = 0;
     dragging = false;
     dom.style.cursor = '';
   });
@@ -86,7 +96,12 @@ TX.Player = function (dom) {
   });
   P.chuot = { x: 0, y: 0 };        // toạ độ chuột trên màn hình, để bắn tia
 
+  /* Cảm ứng: "chuột" nằm yên ở tâm màn hình, trùng chấm ngắm. */
+  function veTam() { P.chuot.x = innerWidth / 2; P.chuot.y = innerHeight / 2; }
+  if (P.camUng) { veTam(); addEventListener('resize', veTam); }
+
   document.addEventListener('mousemove', function (e) {
+    if (P.camUng) return;          // chuột giả lập từ cú chạm — bỏ qua
     P.chuot.x = e.clientX;
     P.chuot.y = e.clientY;
     if (!P.enabled) return;
@@ -105,7 +120,7 @@ TX.Player = function (dom) {
   var keoXa = 0, keoLuc = 0;
 
   dom.addEventListener('mousedown', function (e) {
-    if (!P.enabled) return;
+    if (!P.enabled || P.camUng) return;
 
     /* chuotTuDo: không xin khoá con trỏ, để người chơi thấy và bấm được */
     if (!P.locked && !P.lockBroken && !P.chuotTuDo) {
@@ -137,6 +152,7 @@ TX.Player = function (dom) {
 
   /* Xin khoá con trỏ; thất bại thì chuyển hẳn sang chế độ dự phòng. */
   P.grab = function () {
+    if (P.camUng) return;
     if (P.lockBroken) { if (P.onModeChange) P.onModeChange(); return; }
     try { dom.requestPointerLock(); }
     catch (e) { P.lockBroken = true; if (P.onModeChange) P.onModeChange(); }
@@ -144,6 +160,7 @@ TX.Player = function (dom) {
 
   P.release = function () {
     mouseAct = 0;
+    touchAct = 0;
     if (P.locked) document.exitPointerLock();
   };
 
@@ -153,7 +170,34 @@ TX.Player = function (dom) {
     if (!P.enabled) return 0;
     if (keys['KeyF'] || keys['k_f'] || keys['KeyE'] || keys['k_e'] || keys['Space']) return 1;
     if (keys['KeyR'] || keys['k_r'] || keys['KeyQ'] || keys['k_q']) return -1;
-    return mouseAct;
+    return mouseAct || touchAct;
+  };
+
+  /* ---------- API cho lớp cảm ứng ---------- */
+
+  /* v: +1 / -1 / 0. Thả một nút (v = 0, chiKhi = giá trị của nút đó) chỉ
+     tắt tác động nếu nút kia không đang được giữ thay. */
+  P.datTacDong = function (v, chiKhi) {
+    if (v === 0 && chiKhi !== undefined && touchAct !== chiKhi) return;
+    touchAct = v;
+  };
+
+  /* Trục cần điều khiển, mỗi thành phần -1..1; độ dài 1 = đẩy hết cỡ. */
+  P.datTruc = function (x, y) { truc.x = x; truc.y = y; };
+
+  P.nhinThem = function (dYaw, dPitch) {
+    if (!P.enabled) return;
+    P.yaw -= dYaw;
+    P.pitch -= dPitch;
+    P.pitch = Math.max(-1.35, Math.min(1.2, P.pitch));
+  };
+
+  /* Chạm nhanh lên cảnh = một cú bấm chuột tại điểm đó. */
+  P.cham = function (x, y) {
+    if (!P.enabled || !P.onClick) return;
+    P.chuot.x = x; P.chuot.y = y;
+    try { P.onClick({ button: 0, clientX: x, clientY: y }); }
+    finally { veTam(); }
   };
 
   P.key = function (code) { return !!keys[code]; };
@@ -181,18 +225,22 @@ TX.Player = function (dom) {
     var truocX = P.pos.x, truocZ = P.pos.z;
 
     var sp = (keys['ShiftLeft'] ? 5.0 : 3.0) * dt;
-    var fx = 0, fz = 0;
+    var fx = truc.x, fz = truc.y;
     if (keys['KeyW'] || keys['ArrowUp'])    fz += 1;
     if (keys['KeyS'] || keys['ArrowDown'])  fz -= 1;
     if (keys['KeyA'] || keys['ArrowLeft'])  fx -= 1;
     if (keys['KeyD'] || keys['ArrowRight']) fx += 1;
 
     if (fx || fz) {
-      var len = Math.hypot(fx, fz); fx /= len; fz /= len;
+      var len = Math.hypot(fx, fz);
+      /* phím: luôn đủ tốc; cần analog: đi chậm khi đẩy nhẹ, chạy khi đẩy hết cỡ */
+      var muc = Math.min(1, len);
+      if (!keys['ShiftLeft'] && muc > 0.94 && (truc.x || truc.y)) sp *= 5.0 / 3.0;
+      fx = fx / len * muc; fz = fz / len * muc;
       var s = Math.sin(P.yaw), c = Math.cos(P.yaw);
       P.pos.x += (-fz * s + fx * c) * sp;
       P.pos.z += (-fz * c - fx * s) * sp;
-      bobT += dt * 8;
+      bobT += dt * 8 * muc;
     }
 
     /* chặn tường */
