@@ -15,7 +15,7 @@ TX.Player = function (dom) {
   var P = this;
 
   P.pos = new THREE.Vector3(0, 1.68, 5.6);
-  P.yaw = Math.PI;
+  P.yaw = 0;
   P.pitch = -0.05;
 
   /* Giới hạn không gian, phòng tự đặt lại khi nạp */
@@ -158,9 +158,10 @@ TX.Player = function (dom) {
 
   P.key = function (code) { return !!keys[code]; };
 
+  /* Không truyền yaw thì quay mặt về tâm phòng (0, 0) — yaw 0 là nhìn về -Z. */
   P.spawn = function (x, z, yaw) {
     P.pos.set(x, P.CAO_MAT, z);
-    P.yaw = (yaw === undefined) ? Math.PI : yaw;
+    P.yaw = (yaw === undefined) ? ((x || z) ? Math.atan2(x, z) : 0) : yaw;
     P.pitch = -0.05;
   };
 

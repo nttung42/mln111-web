@@ -21,6 +21,11 @@ TX.VI = {
     vaoPhong: 'Bước vào phòng',
     troLai: 'Trở lại phòng',
     veSanh: 'Về sảnh',
+    roiPhong: {
+      tieuDe: 'Rời phòng, về sảnh?',
+      than: 'Những gì bạn đang làm dở trong phòng này sẽ không được giữ lại. Lần sau vào, phòng bắt đầu lại từ đầu.',
+      o: 'Ở lại'
+    },
     tiepTuc: 'Tiếp tục',
     soTay: 'Sổ tay biện chứng',
     soTayTrong: 'Chưa có mục nào. Hoàn thành một phòng để ghi vào đây.',
