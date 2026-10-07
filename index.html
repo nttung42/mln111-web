@@ -49,6 +49,7 @@
   #hint { position:absolute; left:50%; bottom:190px; transform:translateX(-50%);
     font-size:12.5px; color:var(--muc2); letter-spacing:.03em; opacity:0; transition:opacity .3s;
     text-align:center; padding:7px 16px; border-radius:999px;
+    width:max-content; max-width:min(760px, calc(100vw - 32px));
     background:rgba(255,252,247,.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
     border:1px solid var(--vien); box-shadow:0 6px 20px -10px rgba(120,90,50,.4); }
   #hint.on { opacity:1; }
@@ -185,6 +186,54 @@
   #err { position:fixed; inset:0; z-index:40; display:none; align-items:center;
     justify-content:center; padding:24px; background:var(--nen); }
   #err.on { display:flex; }
+
+  /* ═══ thẻ chú giải: giải thích ý nghĩa của khoảnh khắc vừa xảy ra ═══ */
+  #chuGiai { position:absolute; top:96px; right:24px; width:min(340px, calc(100vw - 32px));
+    padding:16px 18px 12px; border-radius:14px; opacity:0; transform:translateX(16px);
+    transition:opacity .35s, transform .35s;
+    background:rgba(255,252,247,.9); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--vien); border-left:3px solid var(--vang); box-shadow:var(--bong); }
+  #chuGiai.on { opacity:1; transform:none; }
+  #chuGiai .cg-k { font-size:10px; letter-spacing:.22em; color:var(--vang); text-transform:uppercase; }
+  #chuGiai .cg-t { font-family:var(--serif); font-size:23px; font-weight:600; line-height:1.15;
+    margin:3px 0 10px; color:var(--muc); }
+  #chuGiai .cg-r { margin-top:8px; }
+  #chuGiai .cg-r > b { display:block; font-size:9.5px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--mo); font-weight:600; }
+  #chuGiai .cg-r p { margin:2px 0 0; font-size:13px; line-height:1.5; color:var(--muc2); }
+  #chuGiai .cg-r.vs p { color:var(--muc); font-size:13.5px; line-height:1.55; }
+  #chuGiai .cg-r.vs p b { font-weight:600; color:var(--muc); }
+  #chuGiai .cg-r.vs p em { font-family:var(--serif); font-size:15px; color:var(--vang); }
+  #chuGiai .cg-f { margin-top:10px; font-size:11px; color:var(--mo); }
+  #chuGiai .cg-f:first-child { margin-top:0; }
+  @media (max-width: 720px) { #chuGiai { top:84px; right:16px; } }
+
+  /* ═══ cảnh phim: viền điện ảnh + phụ đề, khi camera tự dẫn đường ═══ */
+  #phim { position:fixed; inset:0; z-index:12; pointer-events:none; }
+  #phim .vien { position:absolute; left:0; right:0; height:9vh; background:#07040c;
+    transform:scaleY(0); transition:transform .6s ease; }
+  #phim .vien.tren { top:0; transform-origin:top; }
+  #phim .vien.duoi { bottom:0; transform-origin:bottom; }
+  #phim.on .vien { transform:scaleY(1); }
+  #phimChu { position:absolute; left:50%; bottom:calc(9vh + 18px); transform:translate(-50%, 12px);
+    width:min(640px, calc(100vw - 32px)); padding:14px 20px 12px; border-radius:14px; opacity:0;
+    transition:opacity .45s, transform .45s;
+    background:rgba(18,10,30,.82); border:1px solid rgba(255,176,74,.55); color:#f3ead8;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+  #phimChu.on { opacity:1; transform:translate(-50%, 0); }
+  #phimChu .k { font-size:10.5px; letter-spacing:.24em; color:#ffb04a; text-transform:uppercase; }
+  #phimChu .t { font-family:var(--serif); font-size:26px; font-weight:600; margin:2px 0 6px; color:#fff; }
+  #phimChu p { margin:0; font-size:14px; line-height:1.6; color:#e6dccb; }
+  #phimChu p b { color:#ffd27a; font-weight:600; }
+
+  /* sổ khám phá trong thẻ bia */
+  #card .cg-muc { border-top:1px solid rgba(184,140,70,.2); padding-top:12px; margin-top:12px; }
+  #card .cg-muc h3 { font-family:var(--serif); font-size:19px; font-weight:600; margin:0 0 4px; color:var(--muc); }
+  #card .cg-muc h3 span { font-family:'Be Vietnam Pro',sans-serif; font-size:10.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--vang); margin-left:8px; font-weight:500; }
+  #card .cg-muc p { font-size:13.5px; margin:0 0 6px; }
+  #card .cg-muc .cg-vs { color:var(--muc); }
+  #card .cg-muc.khoa h3, #card .cg-muc.khoa p { color:var(--mo); }
 </style>
 </head>
 <body>
@@ -198,6 +247,12 @@
   <div id="panel"></div>
   <div id="flash"></div>
   <div id="burst"><div id="burstK"></div><div id="burstT"></div></div>
+  <div id="chuGiai"></div>
+</div>
+
+<div id="phim">
+  <div class="vien tren"></div><div class="vien duoi"></div>
+  <div id="phimChu"><div class="k"></div><div class="t"></div><p></p></div>
 </div>
 
 <div id="veil"><div id="card"></div></div>
@@ -238,6 +293,9 @@
 <script src="rooms/luong-chat.js"></script>
 <script src="rooms/mau-thuan.js"></script>
 <script src="rooms/phu-dinh.js"></script>
+<script src="rooms/nhan-thuc-tranh.js"></script>
+<script src="rooms/nhan-thuc-am.js"></script>
+<script src="rooms/nhan-thuc.js"></script>
 <script src="rooms/ha-tang.js"></script>
 
 <script>

@@ -254,11 +254,12 @@
     var ds = ctx.danhSachPhong;
     var n = ds.length;
 
+    var j = 0;   // phòng có màu cửa riêng không chiếm lượt trong bảng màu chung
     for (var i = 0; i < n; i++) {
       /* rải đều dọc đường leo, chừa chân thang và đỉnh thang */
       var t = (i + 1) / (n + 1);
       var goc = GOC_DAU + t * (GOC_CUOI - GOC_DAU);
-      dungMotCua(ctx, ds[i], goc, BANG_MAU[i % BANG_MAU.length]);
+      dungMotCua(ctx, ds[i], goc, ds[i].mauCua || BANG_MAU[j++ % BANG_MAU.length]);
     }
   }
 
