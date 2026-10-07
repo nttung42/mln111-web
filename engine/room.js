@@ -15,6 +15,12 @@ window.TX = window.TX || {};
 
   TX.FONT_FANTASY = '"Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif';
 
+  /* Tiêu đề trên biển cửa: serif có dấu tiếng Việt dày, đọc rõ từ xa */
+  TX.FONT_TIEU_DE = '"Playfair Display", "Noto Serif", Georgia, serif';
+
+  /* Chữ mẫu để document.fonts.load tải cả subset tiếng Việt */
+  TX.CHU_MAU_VI = 'AaĐđƠơƯư ạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ';
+
   /* Bảng màu dùng chung — xem phần Định hướng nghệ thuật trong GDD */
   TX.MAU = {
     nen:      0xf3eee7,   // trắng ngọc trai — nền và sương

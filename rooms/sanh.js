@@ -526,11 +526,17 @@
     g.shadowBlur = 14;
 
     g.fillStyle = '#9a7432';
-    g.font = 'italic 500 28px ' + TX.FONT_FANTASY;
+    g.font = 'italic 500 26px ' + TX.FONT_TIEU_DE;
     g.fillText(phong.nhanNgan || '', c.width / 2, 40);
 
     g.fillStyle = '#3a3226';
-    g.font = '600 62px ' + TX.FONT_FANTASY;
+    /* co chữ cho vừa biển nếu tiêu đề dài */
+    var co = 54;
+    g.font = '600 ' + co + 'px ' + TX.FONT_TIEU_DE;
+    while (co > 34 && g.measureText(phong.tieuDe).width > c.width - 60) {
+      co -= 2;
+      g.font = '600 ' + co + 'px ' + TX.FONT_TIEU_DE;
+    }
     g.fillText(phong.tieuDe, c.width / 2, 110);
 
     /* hoa văn: — ✦ — */
@@ -548,7 +554,7 @@
     if (phong.xong) {
       g.shadowBlur = 10;
       g.fillStyle = '#3f8f62';
-      g.font = '600 26px ' + TX.FONT_FANTASY;
+      g.font = '600 24px ' + TX.FONT_TIEU_DE;
       try { g.letterSpacing = '6px'; } catch (e) {}
       g.fillText('ĐÃ QUA', c.width / 2, 196);
     }
@@ -574,10 +580,10 @@
     g.clearRect(0, 0, c.width, c.height);
     g.textAlign = 'center';
     g.fillStyle = '#9a7432';
-    g.font = '600 46px ' + TX.FONT_FANTASY;
+    g.font = '600 42px ' + TX.FONT_TIEU_DE;
     g.fillText('ĐỈNH THÁP', c.width / 2, 58);
     g.fillStyle = '#8a8172';
-    g.font = 'italic 400 28px ' + TX.FONT_FANTASY;
+    g.font = 'italic 500 26px ' + TX.FONT_TIEU_DE;
     g.fillText('còn đang xây', c.width / 2, 104);
 
     var tex = new THREE.CanvasTexture(c);
