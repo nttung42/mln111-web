@@ -13,9 +13,19 @@ TX.VI['mau-thuan'] = {
   moDau: {
     tieuDe: 'Nhà máy: hai phía của dây chuyền',
     than: 'Phía dưới là <b>công nhân</b> đứng máy. Trên phòng kính là <b>ban quản lý</b> với bảng chỉ tiêu. ' +
-          'Họ vừa cho dây chuyền chạy gần hết công suất. ' +
           'Bạn đứng ở bàn điều khiển giữa hai phía, có ba cần gạt: <em>tốc độ</em>, <em>thời gian nghỉ</em>, <em>tiền lương</em>. ' +
-          'Hãy làm cho nhà máy chạy được lâu dài, không để phía nào bị ép đến mức sụp.'
+          'Có hai nhiệm vụ, xem ở góc trái trên. Nhiệm vụ đầu tiên: ban quản lý vừa nhận một <b>đơn hàng gấp</b>.'
+  },
+
+  /* ---------- ô nhiệm vụ góc trái trên ---------- */
+  nhiemVu: {
+    tieuDe: 'Nhiệm vụ',
+    nv1: { ten: 'Đơn hàng gấp', mo: 'Ban quản lý cần sản lượng %n. Đẩy cần gạt tốc độ lên.' },
+    nv2: { ten: 'Khởi động lại', mo: 'Cho nhà máy chạy lại, giữ cả bốn chỉ số từ %n trở lên trong %s giây.' },
+    epBuoc: 'Ban quản lý đã khoá bàn điều khiển…',
+    canh1: 'Cảnh 1 · Đình công',
+    khung: 'Nhà máy đang khủng hoảng',
+    canh2: 'Cảnh 2 · Dây chuyền 2 vận hành'
   },
 
   /* ---------- ba cần gạt ---------- */
@@ -35,7 +45,6 @@ TX.VI['mau-thuan'] = {
     loiNhuan: 'Lợi nhuận',
     sucKhoe: 'Sức khỏe',
     tinhThan: 'Tinh thần',
-    giu: 'Giữ cả bốn chỉ số từ %n trở lên',
     buocNhay: 'Mâu thuẫn → phát triển'
   },
 
@@ -52,6 +61,8 @@ TX.VI['mau-thuan'] = {
   /* ---------- dòng gợi ý ---------- */
   goiY: {
     xa: 'Lại gần bàn điều khiển, nhìn vào một cần gạt',
+    nv1: 'Đơn hàng gấp: nhìn vào cần gạt <b>tốc độ</b> và đẩy sản lượng lên',
+    epBuoc: 'Ban quản lý: “Chưa đủ! Chạy hết công suất, cắt giờ nghỉ, giữ nguyên lương.” Bàn điều khiển đã bị khoá',
     can: {
       toc:   'Giữ <kbd>Chuột trái</kbd> tăng <b>tốc độ</b> · <kbd>Chuột phải</kbd> giảm',
       nghi:  'Giữ <kbd>Chuột trái</kbd> tăng <b>thời gian nghỉ</b> · <kbd>Chuột phải</kbd> giảm',
@@ -138,16 +149,38 @@ TX.VI['mau-thuan'] = {
     }
   },
 
-  baiHoc: {
-    nhan: 'Nhà máy vừa bước sang nấc mới',
-    tieuDe: 'Mâu thuẫn là nguồn gốc của vận động và phát triển',
-    dan: 'Bạn không xoá được mâu thuẫn: công nhân vẫn muốn nghỉ nhiều hơn, ban quản lý vẫn muốn chạy nhanh hơn. ' +
-         'Chính những lần nhà máy bị đẩy lệch đã buộc cách vận hành phải đổi, và nhờ thế nhà máy mở được dây chuyền thứ hai.',
+  /* ---------- thẻ sau cảnh 1: đình công ---------- */
+  canh1: {
+    nhan: 'Cảnh 1 · Đình công',
+    tieuDe: 'Ép một phía, cả nhà máy dừng',
+    dan: 'Bạn đã làm đúng điều ban quản lý muốn. Rồi họ ép thêm: chạy hết công suất, cắt giờ nghỉ. ' +
+         'Công nhân kiệt sức, rời máy và đứng trước phòng kính. Dây chuyền dừng, đơn hàng cũng mất. ' +
+         'Phía thắng thế không thắng được lâu, vì nó cần chính phía bị ép.',
+    danQL: 'Lương và giờ nghỉ bị đẩy cao tới mức nhà máy thua lỗ, ban quản lý cho dừng dây chuyền. ' +
+           'Công nhân cũng mất việc theo. Phía thắng thế không thắng được lâu, vì nó cần chính phía kia.',
     dinhNghia: [
       ['Mặt đối lập', 'Những mặt có khuynh hướng biến đổi trái ngược nhau, cùng tồn tại trong một sự vật: công nhân và ban quản lý trong một nhà máy.'],
       ['Thống nhất', 'Các mặt đối lập lấy nhau làm tiền đề tồn tại. Không có công nhân thì không có sản xuất, không có nhà máy thì công nhân không có việc.'],
-      ['Đấu tranh', 'Các mặt đối lập tác động qua lại, bài trừ nhau. Ép một phía quá mức thì phía ấy phản ứng, cả hệ thống dừng lại.'],
-      ['Chuyển hoá', 'Đấu tranh đến mức nhất định thì mâu thuẫn được giải quyết, sự vật chuyển sang trạng thái mới.']
+      ['Đấu tranh', 'Các mặt đối lập tác động qua lại, bài trừ nhau. Ép một mặt quá mức thì mặt ấy phản ứng: làm chậm, bỏ việc, đình công.']
+    ],
+    nhiemVu2: {
+      tieuDe: 'Nhiệm vụ 2 · Khởi động lại',
+      than: 'Bàn điều khiển đã mở khoá. Hãy cho dây chuyền chạy lại và giữ cả bốn chỉ số từ 72 trở lên trong 8 giây. ' +
+            'Hai phía sẽ không ngồi yên: phía nào chịu thiệt sẽ tự đòi.'
+    },
+    nut: 'Bắt đầu nhiệm vụ 2'
+  },
+
+  /* ---------- thẻ sau cảnh 2: dây chuyền 2 vận hành ---------- */
+  baiHoc: {
+    nhan: 'Cảnh 2 · Dây chuyền 2 vận hành',
+    tieuDe: 'Mâu thuẫn là nguồn gốc của vận động và phát triển',
+    dan: 'Bạn không xoá được mâu thuẫn: công nhân vẫn muốn nghỉ nhiều hơn, ban quản lý vẫn muốn chạy nhanh hơn, và họ vẫn tự đòi. ' +
+         'Nhưng chính cuộc đình công đã buộc cách vận hành phải đổi, và nhờ thế nhà máy mở được dây chuyền thứ hai.',
+    dinhNghia: [
+      ['Thống nhất là tương đối', 'Trạng thái ổn định bạn vừa giữ chỉ là tạm thời, có điều kiện. Đổi một cần gạt là nó mất.'],
+      ['Đấu tranh là tuyệt đối', 'Ngay cả khi ổn định, hai phía vẫn kéo về hai hướng. Cuộc đấu tranh không dừng lại.'],
+      ['Chuyển hoá', 'Đấu tranh đến mức nhất định thì mâu thuẫn được giải quyết, sự vật chuyển sang trạng thái mới: nhà máy mở rộng sản xuất.']
     ],
     trichDan: '“Sự thống nhất (phù hợp, đồng nhất, tác dụng ngang nhau) của các mặt đối lập là có điều kiện, ' +
               'tạm thời, thoáng qua, tương đối. Sự đấu tranh của các mặt đối lập bài trừ lẫn nhau là tuyệt đối, ' +
@@ -168,7 +201,7 @@ TX.VI['mau-thuan'] = {
             '<em>Giải quyết</em> một mâu thuẫn khác <em>dập tắt</em> nó ở chỗ nào?'
     },
     nhacKhung: 'Nhà máy đã rơi vào khủng hoảng %n lần trước khi bạn tìm được cách vận hành này.',
-    nhacKhong: 'Bạn giữ được nhà máy mà chưa để nó khủng hoảng lần nào. Lần sau, thử ép hẳn một phía xem sao.'
+    nhacKhong: 'Bạn giữ được nhà máy mà chưa để nó khủng hoảng lần nào.'
   },
 
   soTay: {

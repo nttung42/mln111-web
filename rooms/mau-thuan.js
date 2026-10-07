@@ -3,9 +3,20 @@
    Quy luật thống nhất và đấu tranh của các mặt đối lập
    (Giáo trình, Chương 2, mục 2.2.2)
 
-   Một vòng lặp duy nhất:
-     chỉnh cần gạt → nhà máy phản ứng → mâu thuẫn bộc lộ
-     → hệ thống mất cân bằng → chỉnh lại → tìm cách vận hành phát triển
+   Hai nhiệm vụ, mỗi nhiệm vụ kết bằng một cảnh và một thẻ bài học:
+
+     NV1 · Đơn hàng gấp   đẩy sản lượng lên MUC_DON → ban quản lý giành
+                          bàn điều khiển, ép hết công suất, khoá cần gạt
+                          → CẢNH 1 · ĐÌNH CÔNG (công nhân rời máy, đứng
+                          khoanh tay trước phòng kính) → bài học 1:
+                          mặt đối lập · thống nhất · đấu tranh
+     NV2 · Khởi động lại  mở khoá, chỉnh cho nhà máy chạy lại và giữ cả
+                          bốn chỉ số ≥ NGUONG trong GIU_CAN giây
+                          → CẢNH 2 · DÂY CHUYỀN 2 VẬN HÀNH → bài học 2:
+                          thống nhất tương đối, đấu tranh tuyệt đối,
+                          mâu thuẫn là nguồn gốc của phát triển
+
+   S.nv chạy theo thứ tự: 1 → 'epBuoc' → 'canh1' → 2 (rồi S.ket).
 
    Bố cục (nhìn từ chỗ người chơi xuất hiện, mặt hướng về -z):
      · giữa phòng   dây chuyền 1 chạy từ trái (kho) sang phải (thành phẩm),
@@ -49,6 +60,7 @@
   var X_HL = -5.6;                           // hành lang dọc tường trái
   var CUA = [-7.35, 0.6];                    // lối ra
   var GHE = [[-6.6, 2.85], [-6.6, 3.7]];     // chỗ ngồi ở góc nghỉ
+  var DINH_CONG = [[-1.8, 0.05], [-0.6, 0.2], [0.6, 0.2], [1.8, 0.05]];  // đình công: giữa xưởng, ngay trước bàn điều khiển
   var DEN = [5.75, -0.35];                   // tháp đèn báo
   var PALLET = [6.4, -1.6];
 
@@ -59,6 +71,7 @@
   ];
 
   /* ---------- nhịp chơi ---------- */
+  var MUC_DON    = 95;    // nhiệm vụ 1: sản lượng ban quản lý đòi
   var NGUONG     = 72;    // cả bốn chỉ số từ mức này trở lên mới tính là ổn định
   var GIU_CAN    = 8;     // giữ ổn định chừng ấy giây thì nhà máy bước sang nấc mới
   var TAU        = 6;     // giây — sức khoẻ, tinh thần đuổi theo đích chậm cỡ này
@@ -169,12 +182,13 @@
   /* ═══════════ dựng hình ═══════════ */
 
   function build(ctx) {
-    var c0 = { toc: 0.95, nghi: 0.05, luong: 0.2 };   // ban quản lý vừa cho chạy hết công suất
-    var suc0 = 66, tinh0 = 58, sl0 = slTu(c0, suc0, tinh0);
+    var c0 = { toc: 0.5, nghi: 0.4, luong: 0.5 };     // nhà máy đang chạy vừa phải
+    var d0 = diemDung(c0);
 
     S = {
       can: c0,
-      suc: suc0, tinh: tinh0, sl: sl0, ln: lnTu(c0, sl0),
+      suc: d0.suc, tinh: d0.tinh, sl: d0.sl, ln: d0.ln,
+      nv: 1, nvT: 0, daThe1: false,
       batOn: 0,
       khung: null, khungT: 0, soKhung: 0,
       chayLaiT: 0,
@@ -916,7 +930,6 @@
         '#panel .nm-t{position:relative;height:6px;border-radius:3px;background:#ece5d9}' +
         '#panel .nm-t i{position:absolute;left:0;top:0;bottom:0;border-radius:3px}' +
         '#panel .nm-t s{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--muc2);opacity:.45}' +
-        '#panel .nodebar{margin-top:8px}' +
       '</style>' +
       '<div class="nm-h">' +
         '<div class="phase"><span class="lbl">' + N.trangThai + '</span><span class="val" id="nmS"></span></div>' +
@@ -927,16 +940,85 @@
           dong('SL', N.sanLuong, MAU_QL) + dong('LN', N.loiNhuan, MAU_QL) + '</div>' +
         '<div><div class="nm-b" style="color:' + MAU_CN + '">' + N.benCN + '</div>' +
           dong('SK', N.sucKhoe, MAU_CN) + dong('TT', N.tinhThan, MAU_CN) + '</div>' +
-      '</div>' +
-      '<div class="nodebar on">' +
-        '<div class="cap"><span>' + N.giu.replace('%n', NGUONG) + '</span><span id="nmGiuS"></span></div>' +
-        '<div class="track"><div class="bar" id="nmGiu"></div></div>' +
       '</div>'
     );
     el = {};
-    ['S', 'K', 'SL', 'LN', 'SK', 'TT', 'SLB', 'LNB', 'SKB', 'TTB', 'Giu', 'GiuS'].forEach(function (k) {
+    ['S', 'K', 'SL', 'LN', 'SK', 'TT', 'SLB', 'LNB', 'SKB', 'TTB'].forEach(function (k) {
       el[k] = document.getElementById('nm' + k);
     });
+    dungONhiemVu(ctx);
+  }
+
+  /* Ô nhiệm vụ ở góc trái trên, ngay dưới nhãn phòng. Phòng tự tạo và tự
+     gỡ khi rời đi, không đụng vào khung HUD chung. */
+  function dungONhiemVu(ctx) {
+    var NV = ctx.text.nhiemVu;
+    var o1 = document.createElement('div');
+    o1.id = 'mtNV';
+    o1.innerHTML =
+      '<style>' +
+        '#mtNV{position:absolute;left:24px;top:104px;width:300px;padding:12px 16px 12px;border-radius:12px;' +
+          'background:var(--kinh);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);' +
+          'border:1px solid var(--vien);box-shadow:var(--bong);font-size:12.5px;color:var(--muc2)}' +
+        '#mtNV .k{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--vang);margin-bottom:6px}' +
+        '#mtNV .nv{display:grid;grid-template-columns:22px 1fr;gap:0 6px;padding:6px 0;opacity:.5;transition:opacity .3s}' +
+        '#mtNV .nv+.nv{border-top:1px solid var(--vien)}' +
+        '#mtNV .nv.dang,#mtNV .nv.xong{opacity:1}' +
+        '#mtNV .o{width:16px;height:16px;margin-top:1px;border-radius:50%;border:1.5px solid var(--vangN);' +
+          'display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}' +
+        '#mtNV .nv.dang .o{border-color:var(--vang)}' +
+        '#mtNV .nv.xong .o{background:#1e7a46;border-color:#1e7a46}' +
+        '#mtNV .t{font-weight:600;color:var(--muc)}' +
+        '#mtNV .nv.xong .t{text-decoration:line-through;text-decoration-color:rgba(30,122,70,.6)}' +
+        '#mtNV .m{margin-top:1px;line-height:1.4}' +
+        '#mtNV .tr{grid-column:2;display:none;align-items:center;gap:8px;margin-top:6px}' +
+        '#mtNV .nv.dang .tr{display:flex}' +
+        '#mtNV .tr div{flex:1;height:4px;border-radius:2px;background:#ece5d9;overflow:hidden}' +
+        '#mtNV .tr i{display:block;height:100%;width:0;background:linear-gradient(90deg,#e9c47a,#d18a2e)}' +
+        '#mtNV .tr span{font-size:11px;font-variant-numeric:tabular-nums;color:var(--muc2)}' +
+        '#mtNV .canh{grid-column:2;display:none;margin-top:5px;font-size:11.5px;color:#c8352a;font-weight:600}' +
+        '#mtNV .canh:not(:empty){display:block}' +
+      '</style>' +
+      '<div class="k">' + NV.tieuDe + '</div>' +
+      [1, 2].map(function (n) {
+        var d = NV['nv' + n];
+        return '<div class="nv" id="mtNV' + n + '">' +
+                 '<div class="o"></div>' +
+                 '<div><div class="t">' + n + '. ' + d.ten + '</div>' +
+                   '<div class="m">' + d.mo.replace('%n', n === 1 ? MUC_DON : NGUONG).replace('%s', GIU_CAN) + '</div></div>' +
+                 '<div class="tr"><div><i></i></div><span></span></div>' +
+                 '<div class="canh"></div>' +
+               '</div>';
+      }).join('');
+    document.getElementById('hud').appendChild(o1);
+    el.nv = o1;
+    el.nvDong = [1, 2].map(function (n) {
+      var d = document.getElementById('mtNV' + n);
+      return { d: d, o: d.querySelector('.o'), i: d.querySelector('.tr i'), so: d.querySelector('.tr span'), canh: d.querySelector('.canh') };
+    });
+  }
+
+  function capNhatONhiemVu(ctx) {
+    var NV = ctx.text.nhiemVu;
+    /* bám ngay dưới nhãn phòng, dù nhãn cao thấp thế nào */
+    var tag = document.getElementById('roomTag');
+    if (tag) el.nv.style.top = (tag.getBoundingClientRect().bottom + 10) + 'px';
+
+    var xong1 = S.nv !== 1, xong2 = S.ket;
+    var dang1 = S.nv === 1, dang2 = S.nv === 2 && !S.ket;
+    [[xong1, dang1], [xong2, dang2]].forEach(function (tt, k) {
+      var r = el.nvDong[k];
+      r.d.classList.toggle('xong', tt[0]);
+      r.d.classList.toggle('dang', tt[1]);
+      r.o.textContent = tt[0] ? '✓' : '';
+    });
+    var a = el.nvDong[0], b = el.nvDong[1];
+    a.i.style.width = Math.min(100, S.sl / MUC_DON * 100) + '%';
+    a.so.textContent = Math.round(S.sl) + ' / ' + MUC_DON;
+    a.canh.textContent = S.nv === 'epBuoc' ? NV.epBuoc : S.nv === 'canh1' ? NV.canh1 : '';
+    b.i.style.width = (S.giu / GIU_CAN * 100) + '%';
+    b.so.textContent = S.giu.toFixed(1) + ' / ' + GIU_CAN + ' s';
+    b.canh.textContent = S.ket ? NV.canh2 : (S.nv === 2 && S.khung ? NV.khung : '');
   }
 
   /* ═══════════ khi bước vào ═══════════ */
@@ -966,6 +1048,7 @@
 
     /* --- cần gạt --- */
     var tacDong = S.chon && !S.ket ? ctx.player.action() : 0;
+    S.nvT += dt;
     if (tacDong) {
       c[S.chon] = kep(c[S.chon] + tacDong * TOC_CAN * dt, 0, 1);
       S.ysChuT = Math.min(S.ysChuT, 0.6);   // người chơi đã ra tay thì tắt bớt lời đòi
@@ -975,8 +1058,23 @@
     var dangKhung = !!S.khung;
     var sucDich = dichSuc(c);
     if (dangKhung) sucDich = Math.max(sucDich, 55);    // máy dừng, người được nghỉ
-    S.suc  = A.damp(S.suc,  sucDich, 1 / TAU, dt);
-    S.tinh = A.damp(S.tinh, dichTinh(c, S.suc), 1 / TAU, dt);
+    var tau = S.nv === 'epBuoc' ? TAU * 0.6 : TAU;     // bị ép thì gục nhanh hơn
+    S.suc  = A.damp(S.suc,  sucDich, 1 / tau, dt);
+    S.tinh = A.damp(S.tinh, dichTinh(c, S.suc), 1 / tau, dt);
+
+    /* --- nhiệm vụ 1: đạt đơn hàng thì ban quản lý giành bàn điều khiển --- */
+    if (S.nv === 1 && !dangKhung && S.sl >= MUC_DON) {
+      S.nv = 'epBuoc';
+      S.nvT = 0;
+      ctx.hud.loeSang();
+      ctx.audio.diemNut();
+    }
+    if (S.nv === 'epBuoc') {
+      c.toc   = A.damp(c.toc, 1, 1.2, dt);
+      c.nghi  = A.damp(c.nghi, 0, 1.2, dt);
+      c.luong = A.damp(c.luong, 0.15, 1.2, dt);
+      CAN.forEach(function (cd) { o.can[cd.id].sang = 1; });
+    }
     S.sl   = A.damp(S.sl, dangKhung ? 0 : slTu(c, S.suc, S.tinh), dangKhung ? 1.6 : 0.8, dt);
     S.ln   = A.damp(S.ln, lnTu(c, S.sl), 1.2, dt);
 
@@ -984,7 +1082,7 @@
     if (dangKhung) {
       S.khungT += dt;
       var d = diemDung(c);
-      if (S.khungT > 4 && d.suc >= 40 && d.tinh >= 40 && d.ln >= 40) {
+      if (S.nv === 2 && S.khungT > 4 && d.suc >= 40 && d.tinh >= 40 && d.ln >= 40) {
         S.khung = null;
         S.suc = Math.max(S.suc, 35);
         S.tinh = Math.max(S.tinh, 35);
@@ -1006,11 +1104,19 @@
         S.batOn = 0;
         ctx.hud.buocNhay('⚠ ' + ctx.text.trangThai.BAT_ON, ctx.text.trangThai.KHUNG);
         ctx.audio.buocNhay();
+        /* khủng hoảng đầu tiên (thường là do bị ép) chính là cảnh 1 */
+        if (S.nv !== 2) { S.nv = 'canh1'; S.nvT = 0; }
       }
     }
 
+    /* --- cảnh 1: để người chơi xem công nhân kéo ra đình công rồi mới hiện bài học --- */
+    if (S.nv === 'canh1' && S.nvT > 10 && !S.daThe1) {
+      S.daThe1 = true;
+      theCanh1(ctx);
+    }
+
     /* --- ổn định đủ lâu thì nhà máy bước sang nấc mới --- */
-    var on = !S.khung && thapNhat() >= NGUONG;
+    var on = S.nv === 2 && !S.khung && thapNhat() >= NGUONG;
     if (S.ket) S.giu = GIU_CAN;
     else if (on) S.giu = Math.min(GIU_CAN, S.giu + dt);
     else S.giu = Math.max(0, S.giu - dt * 2);
@@ -1021,7 +1127,7 @@
     }
 
     /* --- hai phía không đứng yên: phía đang chịu thiệt tự đòi --- */
-    if (!S.khung && !S.ket && S.giu < 0.5) {
+    if (S.nv === 2 && !S.khung && !S.ket && S.giu < 0.5) {
       S.ysT -= dt;
       if (S.ysT <= 0) {
         S.ysT = 18 + Math.random() * 6;
@@ -1044,7 +1150,7 @@
     if (S.chayLaiT > 0) S.chayLaiT -= dt;
 
     /* --- công nhân nghỉ việc khi chán quá lâu, quay lại khi đỡ hơn --- */
-    if (!S.ket) {
+    if (S.nv === 2 && !S.ket) {
       if (S.tinh < 22 && S.soBo < 2) {
         S.boT += dt;
         if (S.boT > 5) { S.boT = 0; o.cn[[2, 0][S.soBo]].bo = true; S.soBo++; }
@@ -1084,6 +1190,28 @@
   }
 
   /* ═══════════ thẻ bài học ═══════════ */
+
+  /* sau cảnh đình công: mặt đối lập · thống nhất · đấu tranh, rồi giao nhiệm vụ 2 */
+  function theCanh1(ctx) {
+    var B = ctx.text.canh1;
+    ctx.hud.anChuGiai();
+    ctx.hud.the(
+      '<div class="eyebrow">' + B.nhan + '</div>' +
+      '<h1>' + B.tieuDe + '</h1>' +
+      '<p>' + (S.khung === 'QL' ? B.danQL : B.dan) + '</p>' +
+      '<dl>' + B.dinhNghia.map(function (d) {
+        return '<dt>' + d[0] + '</dt><dd>' + d[1] + '</dd>';
+      }).join('') + '</dl>' +
+      '<h2>' + B.nhiemVu2.tieuDe + '</h2>' +
+      '<p>' + B.nhiemVu2.than + '</p>',
+      B.nut,
+      function () {
+        S.nv = 2;
+        S.nvT = 0;
+        S.ysT = 14;
+      }
+    );
+  }
 
   function theBaiHoc(ctx) {
     var B = ctx.text.baiHoc;
@@ -1306,9 +1434,10 @@
   function datDich(w, dich, ghe) {
     w.dich = dich;
     w.ghe = ghe;
-    var p = dich === 'bo' ? CUA : (dich === 'nghi' ? GHE[ghe] : w.nha);
+    var p = dich === 'bo' ? CUA : dich === 'nghi' ? GHE[ghe] : dich === 'dinhCong' ? DINH_CONG[ghe] : w.nha;
     w.duong = lo(w.x, w.z, p[0], p[1]);
-    w.yawNghi = dich === 'nghi' ? Math.PI / 2 : 0;
+    /* ngồi nghỉ quay ra giữa xưởng; đình công quay mặt về phòng kính */
+    w.yawNghi = dich === 'nghi' ? Math.PI / 2 : dich === 'dinhCong' ? Math.PI : 0;
   }
 
   function capNhatCongNhan(dt, t, hs, chay) {
@@ -1327,7 +1456,8 @@
       } else {
         var muon = 'tram', ghe = -1, luot = luotNghi.indexOf(i);
         if (w.bo) muon = 'bo';
-        else if (S.khung && w.dich === 'nghi') { muon = 'nghi'; ghe = w.ghe; }   // khủng hoảng: ai đang nghỉ cứ ngồi đó
+        else if (S.khung === 'CN') { muon = 'dinhCong'; ghe = i; }               // cả xưởng kéo ra đình công
+        else if (S.khung && w.dich === 'nghi') { muon = 'nghi'; ghe = w.ghe; }   // máy dừng: ai đang nghỉ cứ ngồi đó
         else if (!S.khung && luot >= 0 && luot < soNghi) { muon = 'nghi'; ghe = luot; }
         if (muon !== w.dich || ghe !== w.ghe) { w.an = false; datDich(w, muon, ghe); }
         if (w.an) { w.g.visible = false; continue; }
@@ -1337,7 +1467,7 @@
       /* đi theo đường */
       w.dangDi = false;
       if (w.duong.length) {
-        var d = w.duong[0], dx = d[0] - w.x, dz = d[1] - w.z, L = Math.hypot(dx, dz), b = 1.5 * dt;
+        var d = w.duong[0], dx = d[0] - w.x, dz = d[1] - w.z, L = Math.hypot(dx, dz), b = (w.dich === 'dinhCong' ? 2.6 : 1.5) * dt;   // kéo nhau ra đình công thì đi gấp
         if (L <= b) { w.x = d[0]; w.z = d[1]; w.duong.shift(); }
         else { w.x += dx / L * b; w.z += dz / L * b; w.yawDich = Math.atan2(dx, dz); w.dangDi = true; }
         if (!w.duong.length && w.dich === 'bo') { w.an = true; w.g.visible = false; continue; }
@@ -1358,6 +1488,7 @@
     var toi = !w.dangDi && !w.duong.length;
     var ngoi = toi && w.dich === 'nghi';
     var lam = toi && w.dich === 'tram';
+    var dinhCong = toi && w.dich === 'dinhCong';
     var met = kep((45 - S.suc) / 35, 0, 1);       // 0 khoẻ … 1 kiệt sức
     var d = { hong: 0, chan: [0, 0], than: 0, xoay: 0, tayX: [0, 0], tayZ: [0, 0], dau: 0 };
 
@@ -1373,6 +1504,12 @@
       d.tayX = [-0.5, -0.5];
       d.than = -0.1 + Math.sin(t * 0.8 + i) * 0.03;
       d.dau = Math.sin(t * 0.5 + i) * 0.1;
+    } else if (dinhCong) {
+      /* đình công: khoanh tay, ngẩng nhìn phòng kính; thỉnh thoảng một người giơ nắm đấm */
+      var gio = Math.sin(t * 1.1 + i * 1.9) > 0.7;
+      d.tayX = [-1.25, gio ? -2.9 : -1.25];
+      d.tayZ = [0.95, gio ? 0 : -0.95];
+      d.dau = -0.3;
     } else if (lam && S.khung === 'CN' && i < 4) {
       /* đình công: khoanh tay, đứng thẳng */
       d.tayX = [-1.25, -1.25];
@@ -1422,7 +1559,8 @@
       q.chan[0].rotation.x = A.damp(q.chan[0].rotation.x, buoc, 10, dt);
       q.chan[1].rotation.x = A.damp(q.chan[1].rotation.x, -buoc, 10, dt);
       /* lỗ: một người giơ tay chỉ trỏ xuống xưởng */
-      q.tay[1].rotation.x = A.damp(q.tay[1].rotation.x, S.ln < 45 && i === 0 ? -1.9 : -0.15, 6, dt);
+      var chi = S.nv === 'epBuoc' || (S.ln < 45 && i === 0);
+      q.tay[1].rotation.x = A.damp(q.tay[1].rotation.x, chi ? -1.9 : -0.15, 6, dt);
       q.tay[0].rotation.x = A.damp(q.tay[0].rotation.x, -0.15, 6, dt);
       q.dau.rotation.x = A.damp(q.dau.rotation.x, 0.35, 4, dt);
     });
@@ -1506,7 +1644,7 @@
       for (var i = 0; i < trung.length; i++) {
         var u = trung[i].object.userData;
         if (u.nguoi && u.nguoi.an) continue;          // người đã bỏ việc thì không còn ở đó
-        if (u.can) { if (trung[i].distance < TAM_CAN) chon = u.can; }
+        if (u.can) { if (trung[i].distance < TAM_CAN && (S.nv === 1 || S.nv === 2)) chon = u.can; }
         else id = u.nhin;
         break;
       }
@@ -1535,15 +1673,16 @@
       el[d[0]].style.color = d[1] < 25 ? '#c8352a' : '';
       el[d[0] + 'B'].style.width = d[1] + '%';
     });
-    el.Giu.style.width = (S.giu / GIU_CAN * 100) + '%';
-    el.GiuS.textContent = S.giu.toFixed(1) + ' / ' + GIU_CAN + ' s';
+    capNhatONhiemVu(ctx);
 
     ctx.hud.hienPanel(!S.daThe);
     ctx.hud.ngam(!!S.chon);
 
     var goiY;
     if (S.ket) goiY = G.ket;
-    else if (S.khung) goiY = (S.khung === 'CN' ? G.khungCN : G.khungQL) + (S.khungT > 2.5 ? '<br>' + G.khungSua : '');
+    else if (S.nv === 'epBuoc') goiY = G.epBuoc;
+    else if (S.nv === 1 && !S.khung && !S.chon) goiY = G.nv1;
+    else if (S.khung) goiY = (S.khung === 'CN' ? G.khungCN : G.khungQL) + (S.nv === 2 && S.khungT > 2.5 ? '<br>' + G.khungSua : '');
     else if (S.ysChuT > 0) goiY = S.ysChu;
     else if (S.chayLaiT > 0) goiY = G.chayLai;
     else if (S.chon) goiY = (ctx.player.lockBroken ? G.canDP : G.can)[S.chon];
@@ -1570,6 +1709,7 @@
   }
 
   function dispose() {
+    if (el && el.nv && el.nv.parentNode) el.nv.parentNode.removeChild(el.nv);
     if (o && o.nen) o.nen.stop();
     if (o && o.coi) { try { o.coi.os.stop(); } catch (e) {} }
     S = o = el = null;
