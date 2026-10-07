@@ -70,6 +70,25 @@ window.TX = window.TX || {};
     nutVeSanh.innerHTML = '← ' + TX.VI.game.veSanh + '<kbd>ESC</kbd>';
     nutVeSanh.addEventListener('click', function () { hoiRoiPhong(); nutVeSanh.blur(); });
 
+    /* Nút tròn góc phải trên cùng: tắt/bật âm thanh. Phím M làm tương tự,
+       vì lúc khoá con trỏ không bấm được nút. */
+    var nutTieng = document.getElementById('tatTieng');
+    function veNutTieng() {
+      var t = TX.audio.dangTat();
+      nutTieng.classList.toggle('tat', t);
+      nutTieng.setAttribute('aria-label', t ? 'Bật âm thanh' : 'Tắt âm thanh');
+      nutTieng.title = (t ? 'Bật âm thanh' : 'Tắt âm thanh') + ' (M)';
+    }
+    function doiTieng() { TX.audio.tatTieng(!TX.audio.dangTat()); veNutTieng(); }
+    nutTieng.addEventListener('click', function () { doiTieng(); nutTieng.blur(); });
+    addEventListener('keydown', function (e) {
+      if (e.code !== 'KeyM' || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      var dich = e.target;
+      if (dich && (dich.tagName === 'INPUT' || dich.tagName === 'TEXTAREA' || dich.isContentEditable)) return;
+      doiTieng();
+    });
+    veNutTieng();
+
     /* Esc trong phòng: hỏi có muốn về sảnh không.
        Khi đang khoá con trỏ, trình duyệt dùng Esc để nhả khoá và thường
        không gửi keydown — nên bắt cả sự kiện mất khoá. Mất khoá do chính
@@ -196,6 +215,7 @@ window.TX = window.TX || {};
     player.chuotTuDo = !!def.chuotTuDo;
     player.spawn(0, 5.6);
     document.getElementById('veSanh').classList.toggle('on', def !== TX.sanh);
+    TX.audio.nhacNen(def === TX.sanh ? 'sanh' : 'phong');
 
     TX.hud.ngamTat(!!def.chuotTuDo);
     TX.hud.anChuGiai();

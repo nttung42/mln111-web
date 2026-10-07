@@ -101,6 +101,62 @@
       display: block;
     }
 
+    /* nút tắt tiếng chiếm góc trên phải, nút về sảnh lùi sang trái */
+    #veSanh {
+      right: 70px;
+    }
+
+    #tatTieng {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: auto;
+      cursor: pointer;
+      color: var(--muc);
+      background: var(--kinh);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--vien);
+      border-radius: 50%;
+      box-shadow: var(--bong);
+    }
+
+    #tatTieng:hover {
+      color: var(--vang);
+    }
+
+    #tatTieng svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    #tatTieng .loa {
+      fill: currentColor;
+    }
+
+    #tatTieng .cheo,
+    #tatTieng.tat .song {
+      display: none;
+    }
+
+    #tatTieng.tat .cheo {
+      display: inline;
+    }
+
+    #tatTieng.tat {
+      opacity: .7;
+    }
+
     #veSanh:hover {
       color: var(--vang);
     }
@@ -1096,6 +1152,13 @@
 
   <div id="hud">
     <button id="veSanh" type="button"></button>
+    <button id="tatTieng" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path class="loa" d="M4 9.5h3.2L11.5 6v12l-4.3-3.5H4z" />
+        <path class="song" d="M15 9.2a4 4 0 0 1 0 5.6M17.6 6.8a7.4 7.4 0 0 1 0 10.4" />
+        <path class="cheo" d="M15.5 9.5l5 5M20.5 9.5l-5 5" />
+      </svg>
+    </button>
     <div id="roomTag">
       <div id="tagKicker"></div>
       <div id="tagTitle"></div>
