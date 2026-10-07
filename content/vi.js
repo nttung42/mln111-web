@@ -295,83 +295,136 @@ TX.VI = {
   /* ---------- Phòng: Biện chứng và Siêu hình ---------- */
   'bien-chung': {
     tang: 'Tháp Xoắn Ốc · Tầng I — Sương Mù',
-    ten: 'Phòng — Biện chứng và Siêu hình',
+    ten: 'Phòng — Hai cách nhìn',
     chuong: 'MLN111 · Chương 1 — Khái luận về triết học',
 
     moDau: {
-      tieuDe: 'Hai phương pháp nhận thức',
-      than: 'Giữa phòng có một cái cây trong lồng kính, và một cần gạt hai chiều. ' +
-            'Gạt về một bên, bạn nhận thức cái cây theo cách này. Gạt về bên kia, ' +
-            'theo cách khác. Câu hỏi của phòng rất đơn giản: <em>cái cây này là gì?</em>'
+      tieuDe: 'Một phòng, hai thế giới',
+      than: 'Một đường ranh giới chia căn phòng làm đôi. Bên trái, mỗi vật đứng yên trên bệ ' +
+            'của riêng nó. Bên phải, mọi vật đang biến đổi và nối vào nhau. ' +
+            'Ngay trên ranh giới có một quả cầu và một cái cây — hãy nhìn chúng từ <em>cả hai phía</em>, ' +
+            'rồi đi tới cánh cửa cuối phòng.'
+    },
+
+    ben: {
+      TRAI: 'SIÊU HÌNH',
+      PHAI: 'BIỆN CHỨNG',
+      GIUA: 'RANH GIỚI'
     },
 
     nhan: {
-      phuongPhap: 'Phương pháp',
-      thoiGian: 'THỜI GIAN — GIỮ ĐỂ CHO CHẢY',
-      tachRoi: 'TÁCH RỜI — GIỮ ĐỂ MỔ XẺ',
-      boPhan: 'Số bộ phận đã tách',
-      buocNhay: 'Nhận ra'
+      cachNhin: 'Bạn đang nhìn theo',
+      daNhin: 'Đã nhìn cái cây từ',
+      thanhTrai: 'SIÊU HÌNH',
+      thanhPhai: 'BIỆN CHỨNG',
+      buocNhay: 'Hợp nhất'
     },
 
-    cheDo: {
-      SIEU_HINH: 'SIÊU HÌNH',
-      BIEN_CHUNG: 'BIỆN CHỨNG'
+    /* biển lớn trên tường hai bên */
+    tuong: {
+      trai: ['SIÊU HÌNH', 'tĩnh · tách rời · cố định'],
+      phai: ['BIỆN CHỨNG', 'động · liên hệ · biến đổi']
     },
 
-    canGat: {
-      ten: 'CẦN GẠT',
-      trai: 'Siêu hình',
-      phai: 'Biện chứng'
-    },
-
-    boPhan: [
-      ['LÁ',    '312 phiến'],
-      ['CÀNH',  '47 nhánh'],
-      ['THÂN',  'cao 1,2 m'],
-      ['RỄ',    'sâu 0,8 m']
+    /* nhãn hiện vật trên bệ bên siêu hình — thứ tự khớp với rooms/bien-chung.js */
+    hienVat: [
+      ['MẶT TRỜI',  'hiện vật số 01'],
+      ['NƯỚC',      'hiện vật số 02'],
+      ['ĐẤT',       'hiện vật số 03'],
+      ['BÁNH RĂNG', 'hiện vật số 04']
     ],
 
-    lienHeNgoai: [
-      ['ĐẤT',  'nơi rễ lấy chất'],
-      ['NẮNG', 'nguồn của quang hợp'],
-      ['MƯA',  'điều kiện của sự sống']
-    ],
+    cua: {
+      hoi: 'Sự vật là gì?',
+      trai: ['SIÊU HÌNH', '“Nó là chính nó.”'],
+      phai: ['BIỆN CHỨNG', '“Nó là chính nó trong những mối liên hệ', 'và quá trình vận động.”']
+    },
 
-    goiYCan:    'Giữ <kbd>Chuột phải</kbd> → Siêu hình &nbsp;·&nbsp; Giữ <kbd>Chuột trái</kbd> → Biện chứng',
-    goiYCanDP:  'Giữ <kbd>R</kbd> → Siêu hình &nbsp;·&nbsp; Giữ <kbd>F</kbd> → Biện chứng',
-    goiYCayS:   'Giữ để <b>mổ xẻ từng bộ phận</b>',
-    goiYCayB:   'Giữ để <b>cho thời gian chảy</b>',
-    goiYXa:     'Lại gần cần gạt, hoặc lại gần cái cây',
+    goiY: {
+      trai:     'Bên <b>Siêu hình</b> — mỗi vật đứng riêng trên bệ, không gì chuyển động',
+      phai:     'Bên <b>Biện chứng</b> — không vật nào thực sự đứng một mình',
+      giua:     'Bạn đang đứng trên ranh giới — bước sang một bên để đổi cách nhìn',
+      cayTrai:  'Từ phía này, cái cây chỉ là <b>một bức tượng</b>. Thử bước sang phía bên kia',
+      cayPhai:  'Từ phía này, cái cây là <b>một quá trình</b>. Thử bước sang phía bên kia',
+      cuaThieu: 'Hãy nhìn cái cây từ phía <b>%s</b> trước đã',
+      cuaMo:    'Giữ <kbd>Chuột trái</kbd> để mở cửa',
+      cuaMoDP:  'Giữ <kbd>F</kbd> để mở cửa',
+      hopNhat:  'Ranh giới tan đi…'
+    },
 
-    beTac: 'Đã có đủ số liệu từng bộ phận. Vẫn chưa biết cái cây này là gì.',
-    nhacNho: 'Số liệu không trả lời được câu hỏi. Thử gạt cần sang bên kia.',
+    /* chú giải khi nhìn vào đạo cụ — xem TX.hud.nhinChuGiai */
+    chuGiai: {
+      be: {
+        nhan: 'SIÊU HÌNH · HIỆN VẬT',
+        tieuDe: 'Mỗi vật một bệ, một khoảng cách cố định',
+        lyThuyet: 'Phương pháp siêu hình nhận thức đối tượng ở trạng thái <b>cô lập, tách rời</b> ' +
+                  'khỏi các sự vật khác. Mặt trời, nước, đất được đo đạc chính xác — nhưng từng thứ một, ' +
+                  'như những hiện vật không liên quan gì đến nhau.'
+      },
+      lienHe: {
+        nhan: 'BIỆN CHỨNG · LIÊN HỆ',
+        tieuDe: 'Cùng những vật ấy, nhưng nối vào nhau',
+        lyThuyet: 'Nắng xuống mầm, nước thấm vào đất, bánh răng này kéo bánh răng kia. ' +
+                  'Phương pháp biện chứng nhận thức đối tượng trong <b>các mối liên hệ</b> — ' +
+                  'chúng ảnh hưởng, ràng buộc và quy định lẫn nhau.'
+      },
+      cauTrai: {
+        nhan: 'QUẢ CẦU · NHÌN TỪ PHÍA SIÊU HÌNH',
+        tieuDe: 'Một trạng thái, được giữ đứng yên',
+        lyThuyet: 'Ánh sáng cố định, quả cầu bất động. Siêu hình nhìn sự vật ở <b>trạng thái tĩnh</b>; ' +
+                  'nếu có biến đổi thì chỉ là tăng giảm về lượng, do nguyên nhân bên ngoài.'
+      },
+      cauPhai: {
+        nhan: 'QUẢ CẦU · NHÌN TỪ PHÍA BIỆN CHỨNG',
+        tieuDe: 'Vẫn quả cầu ấy, nhưng đang biến đổi',
+        lyThuyet: 'Tối dần, sáng dần, bừng lên rồi trở lại. Biện chứng nhìn sự vật trong ' +
+                  '<b>vận động và phát triển</b> — một quá trình, chứ không phải một lát cắt.'
+      },
+      cayTrai: {
+        nhan: 'CÁI CÂY · NHÌN TỪ PHÍA SIÊU HÌNH',
+        tieuDe: 'Một bức tượng cây',
+        lyThuyet: 'Hình dạng cố định, không gió, không đất, không nắng. Đúng là cái cây — ' +
+                  'nhưng chỉ là một trạng thái của nó, bị cắt khỏi mọi thứ làm nên nó.'
+      },
+      cayPhai: {
+        nhan: 'CÁI CÂY · NHÌN TỪ PHÍA BIỆN CHỨNG',
+        tieuDe: 'Mầm → cây non → cây lớn → lá rụng',
+        lyThuyet: 'Rễ hút nước, lá đón nắng, cây sinh ra, lớn lên rồi tàn đi để mầm khác mọc. ' +
+                  'Cái cây là <b>chính nó trong những mối liên hệ và quá trình vận động</b>.'
+      },
+      cua: {
+        nhan: 'CÁNH CỬA',
+        tieuDe: 'Sự vật là gì?',
+        lyThuyet: 'Hai câu trả lời không loại trừ nhau hoàn toàn: sự vật đúng là “chính nó” — ' +
+                  'nhưng chỉ hiểu được trọn vẹn khi đặt nó trong liên hệ và trong vận động.'
+      }
+    },
 
     baiHoc: {
-      nhan: 'Bạn vừa nhìn thấy cái cây',
-      tieuDe: 'Cùng một sự vật, hai cách nhận thức, hai kết quả khác nhau',
-      dan: 'Ở chế độ siêu hình, bạn tách được cái cây thành từng bộ phận và thu về ' +
-           'những con số chính xác — nhưng cái cây chết, và bạn vẫn không biết nó là gì. ' +
-           'Ở chế độ biện chứng, thời gian chảy, lồng kính tan đi, và cái cây hiện ra như ' +
-           'một <em>quá trình</em> nằm trong những mối liên hệ với đất, nắng và mưa.',
+      nhan: 'Một phòng — hai thế giới — cùng một sự vật',
+      tieuDe: 'Hai phương pháp nhận thức',
+      dan: 'Cùng một quả cầu, cùng một cái cây, cùng mặt trời, nước, đất. Đứng bên trái, bạn thấy ' +
+           'chúng đứng yên và tách rời. Đứng bên phải, bạn thấy chúng biến đổi và nối vào nhau. ' +
+           'Sự vật không đổi — <em>cách nhìn</em> đổi.',
       dinhNghia: [
-        ['Phương pháp siêu hình', 'Nhận thức đối tượng ở trạng thái cô lập, tách rời; trong trạng thái tĩnh tại, không vận động, không phát triển.'],
-        ['Phương pháp biện chứng', 'Nhận thức đối tượng trong các mối liên hệ phổ biến; trong sự vận động, biến đổi và phát triển của nó.'],
-        ['Không phải vô dụng', 'Trong một phạm vi nhất định, phương pháp siêu hình vẫn cần thiết — chính nó cho ta những số liệu chính xác về từng bộ phận. Sai lầm chỉ xuất hiện khi lấy nó làm phương pháp phổ quát.']
+        ['Phương pháp siêu hình', 'Nhận thức đối tượng ở trạng thái cô lập, tách rời, giữa các mặt đối lập có một ranh giới tuyệt đối; ở trạng thái tĩnh — nếu có biến đổi thì chỉ là biến đổi về lượng, do nguyên nhân bên ngoài.'],
+        ['Phương pháp biện chứng', 'Nhận thức đối tượng trong các mối liên hệ, ảnh hưởng, ràng buộc lẫn nhau; ở trạng thái vận động, biến đổi, nằm trong khuynh hướng chung là phát triển.'],
+        ['Không phải vô dụng', 'Trong một phạm vi nhất định, cần tạm tách sự vật ra và giữ nó đứng yên để đo đạc, phân loại. Sai lầm chỉ xuất hiện khi lấy đó làm cách nhìn duy nhất.']
       ],
-      trichDan: '“Nhà siêu hình học suy nghĩ bằng những phản đề tuyệt đối không có sự môi giới; ' +
-                'họ nói có là có, không là không… Đối với họ, một vật hoặc tồn tại, hoặc không tồn tại.”',
-      nguon: 'Ph. Ăngghen, Chống Đuyrinh — dẫn theo Giáo trình Triết học Mác – Lênin, NXB Chính trị quốc gia Sự thật, 2021',
+      trichDan: '“…chỉ nhìn thấy những sự vật riêng biệt mà không nhìn thấy mối liên hệ qua lại giữa những sự vật ấy, ' +
+                'chỉ nhìn thấy trạng thái tĩnh của những sự vật ấy mà quên mất sự vận động của những sự vật ấy, ' +
+                'chỉ nhìn thấy cây mà không thấy rừng.”',
+      nguon: 'Ph. Ăngghen, Chống Đuyrinh — C. Mác và Ph. Ăngghen: Toàn tập, t.20, tr.37; dẫn theo Giáo trình Triết học Mác – Lênin, NXB Chính trị quốc gia Sự thật, 2021',
       phuongPhapLuan: [
-        ['Liên hệ', 'Xem xét sự vật trong mối liên hệ với những sự vật khác, không tách nó ra khỏi môi trường của nó.'],
+        ['Liên hệ', 'Xem xét sự vật trong mối liên hệ với những sự vật khác, không tách nó khỏi môi trường của nó.'],
         ['Vận động', 'Xem xét sự vật trong quá trình sinh ra, phát triển và mất đi, không chụp lấy một lát cắt đứng yên.'],
-        ['Không tuyệt đối hoá', 'Phương pháp siêu hình có chỗ dùng của nó; cái sai là biến nó thành cách nhìn duy nhất.']
+        ['Ranh giới', 'Ngay cả đường kẻ chia đôi căn phòng cũng là một hình ảnh siêu hình: một ranh giới tuyệt đối. Khi bạn bước qua cửa, nó tan đi.']
       ],
       lienHe: {
         tieuDe: 'Thử tự trả lời',
         than: 'Khi đánh giá một người bạn, bạn chụp lấy một lỗi họ vừa mắc, hay nhìn họ ' +
               'trong cả quá trình và trong hoàn cảnh của họ? Hai cách ấy cho ra hai kết luận khác nhau đến mức nào?'
-      },
-      nhacTach: 'Bạn đã tách rời cái cây thành %n bộ phận trước khi nhìn nó như một quá trình.'
+      }
     },
 
     soTay: {
