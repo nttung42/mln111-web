@@ -65,6 +65,28 @@ window.TX = window.TX || {};
       if (mo) player.release();
     });
 
+    /* Nút góc phải: về sảnh từ bất kỳ phòng nào, hỏi xác nhận như Esc. */
+    var nutVeSanh = document.getElementById('veSanh');
+    nutVeSanh.innerHTML = '← ' + TX.VI.game.veSanh + '<kbd>ESC</kbd>';
+    nutVeSanh.addEventListener('click', function () { hoiRoiPhong(); nutVeSanh.blur(); });
+
+    /* Esc trong phòng: hỏi có muốn về sảnh không.
+       Khi đang khoá con trỏ, trình duyệt dùng Esc để nhả khoá và thường
+       không gửi keydown — nên bắt cả sự kiện mất khoá. Mất khoá do chính
+       game nhả (mở thẻ, sổ tay, về sảnh) thì lúc đó thẻ/sổ tay đã mở
+       hoặc đã ở sảnh, hoiRoiPhong tự bỏ qua. */
+    addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' || e.repeat) return;
+      if (TX.hud.theDangMo() && dangHoiRoi && performance.now() - lucHoi > 300) {
+        TX.hud.dongThe();               // Esc lần nữa = ở lại
+        return;
+      }
+      hoiRoiPhong();
+    });
+    document.addEventListener('pointerlockchange', function () {
+      if (!document.pointerLockElement) { lucNhaKhoa = performance.now(); hoiRoiPhong(); }
+    });
+
     TX.hud.veSoTay(TX.soTay.danhSach());
     TX.moSanh();
     prev = performance.now();
@@ -83,6 +105,33 @@ window.TX = window.TX || {};
   }
 
   /* ═══════════════ sảnh ═══════════════ */
+
+  var dangHoiRoi = false, lucHoi = 0, lucNhaKhoa = 0;
+
+  function hoiRoiPhong() {
+    if (!phongHienTai || phongHienTai === TX.sanh) return;
+    if (TX.hud.theDangMo() || TX.hud.soTayDangMo()) return;
+    if (ctx && ctx.khoaCamera) return;  // đang chiếu cảnh phim thì thôi
+    var L = TX.VI.game.roiPhong;
+    dangHoiRoi = true;
+    lucHoi = performance.now();
+    TX.hud.hoi(
+      '<div class="eyebrow">' + (ctx.text.ten || phongHienTai.tieuDe || '') + '</div>' +
+      '<h1>' + L.tieuDe + '</h1>' +
+      '<p>' + L.than + '</p>',
+      TX.VI.game.veSanh, L.o,
+      function () { dangHoiRoi = false; TX.moSanh(); },
+      function () {
+        dangHoiRoi = false;
+        /* Chrome từ chối khoá lại ngay sau khi người chơi vừa nhấn Esc
+           (và lỗi đó sẽ chuyển game sang chế độ kéo chuột vĩnh viễn) —
+           nên chỉ tự khoá lại khi đã qua chừng một giây; không thì
+           người chơi bấm vào cảnh để khoá như bình thường. */
+        if (!phongHienTai.chuotTuDo && performance.now() - lucNhaKhoa > 1200) player.grab();
+      }
+    );
+  }
+
 
   var daGioiThieu = false;
 
@@ -146,6 +195,7 @@ window.TX = window.TX || {};
     player.onClick = null;
     player.chuotTuDo = !!def.chuotTuDo;
     player.spawn(0, 5.6);
+    document.getElementById('veSanh').classList.toggle('on', def !== TX.sanh);
 
     TX.hud.ngamTat(!!def.chuotTuDo);
     TX.hud.anChuGiai();
@@ -221,7 +271,9 @@ window.TX = window.TX || {};
       : '<span><kbd>Chuột trái</kbd>tác động</span><span><kbd>Chuột phải</kbd>tác động ngược</span>' +
         '<span><kbd>Chuột</kbd>nhìn quanh</span>';
     return '<div class="keys"><span><kbd>W A S D</kbd>di chuyển</span>' + tacDong +
-           '<span><kbd>Tab</kbd>sổ tay</span></div>';
+           '<span><kbd>Tab</kbd>sổ tay</span>' +
+           (phongHienTai && phongHienTai !== TX.sanh ? '<span><kbd>Esc</kbd>rời phòng</span>' : '') +
+           '</div>';
   }
 
   /* ═══════════════ vòng lặp ═══════════════ */

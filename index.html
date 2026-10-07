@@ -35,6 +35,14 @@
   #roomTag { position:absolute; top:20px; left:24px; padding:10px 18px 12px 16px;
     background:var(--kinh); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
     border:1px solid var(--vien); border-radius:12px; box-shadow:var(--bong); }
+  #veSanh { position:absolute; top:20px; right:24px; display:none; pointer-events:auto; cursor:pointer;
+    padding:9px 16px; font:500 13px 'Be Vietnam Pro',sans-serif; color:var(--muc);
+    background:var(--kinh); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--vien); border-radius:999px; box-shadow:var(--bong); }
+  #veSanh.on { display:block; }
+  #veSanh:hover { color:var(--vang); }
+  #veSanh kbd { font:600 11px 'Be Vietnam Pro',sans-serif; margin-left:6px; padding:1px 6px;
+    border:1px solid var(--vien); border-radius:4px; opacity:.75; }
   #roomTag:empty, #roomTag:has(#tagTitle:empty) { display:none; }
   #tagKicker { font-size:10.5px; letter-spacing:.26em; color:var(--vang); text-transform:uppercase; }
   #tagTitle  { font-family:var(--serif); font-size:25px; font-weight:600; letter-spacing:.01em;
@@ -149,6 +157,9 @@
     transition:transform .2s, box-shadow .2s; }
   .go:hover { transform:translateY(-1px);
     box-shadow:0 14px 32px -10px rgba(184,135,58,1), 0 0 0 4px rgba(226,197,138,.35), inset 0 1px 0 rgba(255,255,255,.4); }
+  .go.phu { margin-left:10px; color:var(--muc); background:transparent;
+    border:1px solid var(--vien); box-shadow:none; }
+  .go.phu:hover { box-shadow:0 0 0 4px rgba(226,197,138,.25); }
   .note { margin-top:16px; font-size:12px; color:var(--mo); line-height:1.55; }
 
   /* ═══ sảnh: thẻ chọn phòng ═══ */
@@ -241,6 +252,7 @@
 <div id="stage"></div>
 
 <div id="hud">
+  <button id="veSanh" type="button"></button>
   <div id="roomTag"><div id="tagKicker"></div><div id="tagTitle"></div></div>
   <div id="cross"></div>
   <div id="hint"></div>

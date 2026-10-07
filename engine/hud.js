@@ -181,6 +181,24 @@ TX.hud = (function () {
       });
     },
 
+    /* ---------- hộp hỏi hai lựa chọn ----------
+       Cùng khung với thẻ nội dung, nên khi đang hỏi thì phòng cũng đứng yên. */
+    hoi: function (html, nhanCo, nhanKhong, khiCo, khiKhong) {
+      if (document.pointerLockElement) document.exitPointerLock();
+
+      el.card.innerHTML = html +
+        '<button class="go" id="cardGo">' + nhanCo + '</button>' +
+        '<button class="go phu" id="cardKhong">' + nhanKhong + '</button>';
+      el.veil.classList.remove('hide');
+      dongCard = khiKhong || null;
+      TX.audio.the();
+      $('cardGo').addEventListener('click', function () {
+        dongCard = khiCo || null;
+        H.dongThe();
+      });
+      $('cardKhong').addEventListener('click', function () { H.dongThe(); });
+    },
+
     dongThe: function () {
       el.veil.classList.add('hide');
       var cb = dongCard; dongCard = null;
