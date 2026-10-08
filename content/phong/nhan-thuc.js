@@ -94,7 +94,7 @@ TX.VI['nhan-thuc'] = {
         tieuDe: 'Trạm II · Xưởng thực tiễn',
         cachChoi: [
           'Giữ cần gạt giữa xưởng để nạp đầy năng lượng.',
-          'Đầy năng lượng, camera sẽ dẫn bạn đi qua lần lượt ba hình thức thực tiễn.',
+          'Đầy năng lượng, camera đưa bạn tới từng hình thức thực tiễn — đọc xong thì bấm để xem tiếp.',
           'Xem bốn vai trò của thực tiễn sáng dần trên cửa sang trạm III.'
         ],
         yNghia: 'Thực tiễn là hoạt động vật chất có mục đích — cơ sở, động lực, mục đích của nhận thức và tiêu chuẩn của chân lý. Hãy để ý chiếc rương ở trạm I.'
@@ -395,6 +395,11 @@ TX.VI['nhan-thuc'] = {
     bangRon: 'CẢI BIẾN XÃ HỘI',
     dangNap: 'ĐANG NẠP NĂNG LƯỢNG',
     dayNap: 'XƯỞNG ĐANG CHẠY',
+    /* cảnh phim dừng sau mỗi bước, chờ người chơi bấm */
+    tiep: 'Nhấn <kbd>Chuột trái</kbd> để xem tiếp ▸',
+    tiepDP: 'Nhấn <kbd>F</kbd> để xem tiếp ▸',
+    tiepCuoi: 'Nhấn <kbd>Chuột trái</kbd> để trở lại xưởng ▸',
+    tiepCuoiDP: 'Nhấn <kbd>F</kbd> để trở lại xưởng ▸',
     /* cảnh phim sau khi nạp đầy: camera ghé lần lượt từng nơi */
     phim: [
       { k: 'Bước 1 / 4 · Sản xuất vật chất', t: 'Thực tiễn là cơ sở của nhận thức',
