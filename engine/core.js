@@ -303,7 +303,7 @@ window.TX = window.TX || {};
         '<span><kbd>Kéo chuột</kbd>nhìn quanh</span>'
       : '<span><kbd>Chuột trái</kbd>tác động</span><span><kbd>Chuột phải</kbd>tác động ngược</span>' +
         '<span><kbd>Chuột</kbd>nhìn quanh</span>';
-    return '<div class="keys"><span><kbd>W A S D</kbd>di chuyển</span>' + tacDong +
+    return '<div class="keys"><span><kbd>W A S D</kbd>di chuyển</span><span><kbd>Space</kbd>nhảy</span>' + tacDong +
            '<span><kbd>Tab</kbd>sổ tay</span>' +
            (phongHienTai && phongHienTai !== TX.sanh ? '<span><kbd>Esc</kbd>rời phòng</span>' : '') +
            '</div>';
