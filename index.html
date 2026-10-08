@@ -1110,6 +1110,28 @@
       font-weight: 600;
     }
 
+    /* dòng "bấm để xem tiếp": chỉ hiện khi cảnh đang dừng chờ người chơi */
+    #phimChu .tiep {
+      display: none;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 176, 74, .3);
+      text-align: right;
+      font-size: 12.5px;
+      letter-spacing: .04em;
+      color: #ffd27a;
+      animation: tiepNhay 1.4s ease-in-out infinite;
+    }
+
+    #phimChu.co-tiep .tiep {
+      display: block;
+    }
+
+    @keyframes tiepNhay {
+      0%, 100% { opacity: .55; }
+      50% { opacity: 1; }
+    }
+
     /* sổ khám phá trong thẻ bia */
     #card .cg-muc {
       border-top: 1px solid rgba(184, 140, 70, .2);
@@ -1556,6 +1578,7 @@
       <div class="k"></div>
       <div class="t"></div>
       <p></p>
+      <div class="tiep"></div>
     </div>
   </div>
 

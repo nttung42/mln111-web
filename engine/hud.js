@@ -150,7 +150,13 @@ TX.hud = (function () {
        Dùng khi phòng mượn camera để dẫn người chơi đi xem lần lượt. */
     phim: function (on) {
       $('phim').classList.toggle('on', !!on);
-      if (!on) $('phimChu').classList.remove('on');
+      if (!on) $('phimChu').classList.remove('on', 'co-tiep');
+    },
+    /* dòng mời bấm để xem tiếp — null để ẩn; cảnh phim dừng chờ người chơi */
+    phimTiep: function (html) {
+      var c = $('phimChu');
+      c.querySelector('.tiep').innerHTML = html ? nhan(html) : '';
+      c.classList.toggle('co-tiep', !!html);
     },
     phimChu: function (kicker, tieuDe, than) {
       var c = $('phimChu');

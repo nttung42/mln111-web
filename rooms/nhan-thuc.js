@@ -3136,7 +3136,7 @@
     { tu: [0.6, 2.1, 5.6],   nhin: [3.9, 1.4, 3.2],  may: 2, ong: 2 },
     { tu: [0, 2.0, 5.4],     nhin: [0, 4.25, 0.2],   may: -1, ong: 3 }
   ];
-  var BUOC_2 = 6.5;             // giây mỗi bước — đủ để xem cỗ máy chạy và đọc phụ đề
+  var BUOC_2 = 3.8;             // giây — mọi việc của một bước đã diễn ra xong; từ đây chờ người chơi bấm
   var TOC_NAP = 0.34;            // nạp đầy trong khoảng 3 giây giữ cần
 
   function logic2(dt, ctx) {
@@ -3151,7 +3151,7 @@
 
   function batDauPhim2(ctx) {
     var P = ctx.player;
-    S.phim = { buoc: 0, t: 0, ve: -1, p: P.pos.clone(), mocVai: false, mocMay: false, mocCua: false };
+    S.phim = { buoc: 0, t: 0, ve: -1, p: P.pos.clone(), cho: false, daNha: false };
     ctx.khoaCamera = true;                              // giữ nguyên khoá chuột — xin khoá lại không cần cú bấm sẽ bị chặn
     ctx.hud.phim(true);
     ctx.hud.anChuGiai();
@@ -3186,8 +3186,22 @@
       S.sangXuong = Math.min(1, (F.buoc + A.doan(F.t, 1.7, 3.0)) / 4);
 
       tuX = B.tu; nhinX = B.nhin;
-      if (F.t >= BUOC_2) {
+
+      /* Diễn xong thì dừng lại chờ: người chơi đọc phụ đề, bấm mới sang bước sau.
+         Phải thả tay rồi bấm lại mới tính — cú giữ lúc nạp năng lượng không làm nhảy bước. */
+      var bam = P.action() > 0;
+      if (!bam) F.daNha = true;
+      if (F.t >= BUOC_2 && !F.cho) {
+        F.cho = true;
+        var cuoi = F.buoc === PHIM_2.length - 1;
+        ctx.hud.phimTiep(P.lockBroken ? (cuoi ? T.tiepCuoiDP : T.tiepDP) : (cuoi ? T.tiepCuoi : T.tiep));
+      }
+      if (F.cho && F.daNha && bam) {
+        F.cho = false;
+        F.daNha = false;
         F.t = 0;
+        ctx.hud.phimTiep(null);
+        ctx.audio.diemNut();
         F.buoc++;
         if (F.buoc >= PHIM_2.length) { F.ve = 0; F.buoc = PHIM_2.length - 1; ctx.hud.phimChu(null); }
       }
