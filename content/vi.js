@@ -65,8 +65,8 @@ TX.VI = {
     ghiChu: 'Không có thắng thua, không đếm giờ. Cứ nghịch thử.',
 
     leoLen:   'Leo lên và tìm một cánh cửa sáng',
-    vaoCua:   'Giữ <kbd>F</kbd> để bước vào, hoặc bấm chuột vào cánh cửa',
-    bamCua:   'Bấm chuột để bước vào cánh cửa này',
+    vaoCua:   'Giữ <kbd>F</kbd> hoặc bấm chuột trái để bước vào',
+    bamCua:   'Bấm chuột trái để bước vào cánh cửa này',
     dinhThap: 'Phía trên chìm trong sương — những phòng tiếp theo sắp mở',
 
     /* bảng giới thiệu gắn ở chân trụ tháp — mỗi dòng phải vừa một hàng trên bảng */

@@ -88,8 +88,9 @@
     ctx.player.spawn(Math.cos(gocVao) * rGiua, Math.sin(gocVao) * rGiua, Math.PI - gocVao - 0.3);
     ctx.player.batDatDat();
 
-    /* Sảnh dùng chuột tự do: thấy con trỏ, bấm thẳng vào cửa muốn vào.
-       Kéo chuột vẫn để nhìn quanh, W A S D vẫn để leo. */
+    /* Sảnh khoá con trỏ như mọi phòng: ngắm chấm giữa màn hình vào cửa
+       rồi bấm chuột trái để vào. onClick chỉ còn dùng ở chế độ dự phòng
+       (kéo chuột) khi trình duyệt không cho khoá con trỏ. */
     o.tia = new THREE.Raycaster();
     o.diem = new THREE.Vector2();
     ctx.player.onClick = function () {
@@ -503,9 +504,13 @@
 
   function layCuaDuoiChuot(ctx) {
     if (!o || !o.tia) return null;
-    var c = ctx.player.chuot;
-    o.diem.x = (c.x / innerWidth) * 2 - 1;
-    o.diem.y = -(c.y / innerHeight) * 2 + 1;
+    if (ctx.player.locked) {
+      o.diem.set(0, 0);              // khoá con trỏ: ngắm ở tâm màn hình
+    } else {
+      var c = ctx.player.chuot;
+      o.diem.x = (c.x / innerWidth) * 2 - 1;
+      o.diem.y = -(c.y / innerHeight) * 2 + 1;
+    }
     o.tia.setFromCamera(o.diem, ctx.camera);
 
     var vung = o.cua.map(function (d) { return d.vungBam; });
@@ -1023,9 +1028,9 @@
 
     /* bước vào */
     if (S.khoaT > 0) S.khoaT -= dt;
-    if (gan && S.khoaT <= 0 && ctx.player.action() > 0 && !S.daVao) {
+    if (sang && S.khoaT <= 0 && ctx.player.action() > 0 && !S.daVao) {
       S.daVao = true;
-      ctx.vaoPhong(gan.id);
+      ctx.vaoPhong(sang.id);
       return;
     }
 
@@ -1052,7 +1057,6 @@
   TX.sanh = {
     id: 'sanh',
     tieuDe: 'Tháp Triết Học',
-    chuotTuDo: true,          // thấy con trỏ, bấm thẳng vào cửa
     build: build,
     update: update,
     dispose: dispose

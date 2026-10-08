@@ -86,11 +86,18 @@ TX.Player = function (dom) {
     P.pitch = Math.max(-1.35, Math.min(1.2, P.pitch));
   }
 
+  var daKhoaDuoc = false;    // đã từng khoá thành công ít nhất một lần
   document.addEventListener('pointerlockchange', function () {
     P.locked = document.pointerLockElement === dom;
+    if (P.locked) daKhoaDuoc = true;
     if (!P.locked) mouseAct = 0;
   });
+  /* Chrome từ chối khoá lại trong khoảng một giây sau khi người chơi nhấn
+     Esc. Đã từng khoá được thì đó chỉ là lỗi tạm — bấm lần sau sẽ thử lại.
+     Chưa từng khoá được lần nào thì môi trường không hỗ trợ: chuyển hẳn
+     sang chế độ kéo chuột. */
   document.addEventListener('pointerlockerror', function () {
+    if (daKhoaDuoc) return;
     P.lockBroken = true;
     if (P.onModeChange) P.onModeChange();
   });
