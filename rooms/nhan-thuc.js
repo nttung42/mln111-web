@@ -3856,8 +3856,8 @@
     tieuDe: 'Lý luận nhận thức',
     nhanNgan: 'Tầng II · Chương 2',
     moTa: 'Bốn trạm, từ bóng tối ra ánh sáng: con người nhận thức thế giới bằng cách nào?',
-    /* cổng dị giới: tím magenta và xanh cyan neon, theo tài liệu thiết kế */
-    mauCua: { vien: 0x1a0638, giua: 0x8a2be2, loi: 0xe6ffff, dom: [0x00ffff, 0xc77dff] },
+    /* hồng ngọc đỏ — ngọn lửa trong hang Platon; tách hẳn khỏi cửa tím của sảnh */
+    mauCua: { vien: 0x3a0610, giua: 0xd6283c, loi: 0xffeedd, dom: [0xff5a4a, 0xffc070] },
     goiY: {
       khoa:    'Lại gần một đạo cụ, giữ <kbd>Chuột trái</kbd> · Cạnh bia, ấn <kbd>E</kbd>',
       duPhong: 'Lại gần một đạo cụ, giữ <kbd>F</kbd> · Cạnh bia, ấn <kbd>E</kbd>'
