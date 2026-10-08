@@ -176,7 +176,7 @@ TX.tranhNhanThuc = (function () {
       g.fillRect(x, 0, 60 + i * 6, H);
     }
     for (i = 0; i < 40; i++) quang(g, 600 + Math.random() * 420, Math.random() * H, 60 + Math.random() * 120, 'rgba(225,220,235,.16)');
-    chuThich(g, '“vật tự nó” ?', 820, 420, '#5a5068');
+    chuThich(g, 'bản chất ?', 820, 420, '#5a5068');
 
     /* vạch giới hạn dưới chân — nhận thức dừng ở đây */
     g.strokeStyle = '#c9a24a'; g.lineWidth = 4; g.setLineDash([14, 10]);
