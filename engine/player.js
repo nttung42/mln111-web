@@ -32,6 +32,12 @@ TX.Player = function (dom) {
 
   P.enabled = false;        // đang đọc thẻ nội dung thì tắt
   P.chuotTuDo = false;      // true: không khoá con trỏ, người chơi thấy và bấm được
+  /* Chế độ BAY (không gian mở): W/S đi theo hướng đang nhìn kể cả lên xuống,
+     A/D đi ngang, nút tác động (Space/F/E, R/Q, hoặc ✦ ↺ trên cảm ứng) bay
+     lên/xuống. bounds là bán kính (tròn) thay cho ô vuông; yMin/yMax chặn độ cao. */
+  P.bay = false;
+  P.yMin = 1.0;
+  P.yMax = 24;
   P.onClick = null;         // gọi khi có một cú bấm thật (không phải kéo nhìn quanh)
   P.locked = false;
   P.lockBroken = false;
@@ -225,6 +231,7 @@ TX.Player = function (dom) {
     var truocX = P.pos.x, truocZ = P.pos.z;
 
     var sp = (keys['ShiftLeft'] ? 5.0 : 3.0) * dt;
+    if (P.bay) sp *= 2.2;       // không gian mở rộng: bay nhanh hơn đi bộ
     var fx = truc.x, fz = truc.y;
     if (keys['KeyW'] || keys['ArrowUp'])    fz += 1;
     if (keys['KeyS'] || keys['ArrowDown'])  fz -= 1;
@@ -238,19 +245,34 @@ TX.Player = function (dom) {
       if (!keys['ShiftLeft'] && muc > 0.94 && (truc.x || truc.y)) sp *= 5.0 / 3.0;
       fx = fx / len * muc; fz = fz / len * muc;
       var s = Math.sin(P.yaw), c = Math.cos(P.yaw);
-      P.pos.x += (-fz * s + fx * c) * sp;
-      P.pos.z += (-fz * c - fx * s) * sp;
-      bobT += dt * 8 * muc;
+      if (P.bay) {
+        var cp = Math.cos(P.pitch), sn = Math.sin(P.pitch);
+        P.pos.x += (-fz * s * cp + fx * c) * sp;
+        P.pos.z += (-fz * c * cp - fx * s) * sp;
+        P.pos.y += fz * sn * sp;
+      } else {
+        P.pos.x += (-fz * s + fx * c) * sp;
+        P.pos.z += (-fz * c - fx * s) * sp;
+        bobT += dt * 8 * muc;
+      }
     }
 
     /* chặn tường */
     var lim = P.bounds;
-    P.pos.x = Math.max(-lim, Math.min(lim, P.pos.x));
-    P.pos.z = Math.max(-lim, Math.min(lim, P.pos.z));
+    if (P.bay) {
+      P.pos.y += P.action() * dt * 4.0 * (keys['ShiftLeft'] ? 1.6 : 1);
+      P.pos.y = Math.max(P.yMin, Math.min(P.yMax, P.pos.y));
+      var rr = Math.hypot(P.pos.x, P.pos.z);
+      if (rr > lim) { P.pos.x *= lim / rr; P.pos.z *= lim / rr; }
+    } else {
+      P.pos.x = Math.max(-lim, Math.min(lim, P.pos.x));
+      P.pos.z = Math.max(-lim, Math.min(lim, P.pos.z));
+    }
 
     /* chặn vật cản tròn */
     for (var i = 0; i < P.blockers.length; i++) {
       var b = P.blockers[i];
+      if (b.cao !== undefined && P.pos.y > b.cao) continue;   // bay cao hơn vật cản thì qua được
       var dx = P.pos.x - b.x, dz = P.pos.z - b.z;
       var d = Math.hypot(dx, dz);
       if (d < b.r && d > 0.0001) {
@@ -262,8 +284,9 @@ TX.Player = function (dom) {
     /* chặn theo hình dạng riêng của không gian (vành khuyên của cầu thang xoắn) */
     if (P.constrain) P.constrain(P.pos, truocX, truocZ);
 
-    /* bám theo địa hình */
-    if (P.groundAt) {
+    /* bám theo địa hình (chế độ bay thì không) */
+    if (P.bay) { /* giữ nguyên độ cao */ }
+    else if (P.groundAt) {
       var dat = P.groundAt(P.pos.x, P.pos.z) + P.CAO_MAT;
       P.pos.y += (dat - P.pos.y) * Math.min(1, dt * 14);   // lên bậc mượt, không giật
     } else {

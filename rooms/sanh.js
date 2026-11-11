@@ -966,6 +966,15 @@
       }
       g.stroke();
       muiTen(s, 0, Math.PI / 2);
+    } else if (hinh === 'co') {
+      /* bàn cờ: nhiều quân nhỏ gộp dần thành một quân lớn */
+      g.strokeRect(-s, -s, s * 2, s * 2);
+      g.globalAlpha = 0.4;
+      [[-0.55, -0.55], [0.55, -0.55], [-0.55, 0.55], [0.55, 0.55]].forEach(function (p) {
+        g.beginPath(); g.arc(p[0] * s, p[1] * s, s * 0.2, 0, Math.PI * 2); g.fill();
+      });
+      g.globalAlpha = 1;
+      g.beginPath(); g.arc(0, 0, s * 0.42, 0, Math.PI * 2); g.fill();
     }
     g.restore();
   }

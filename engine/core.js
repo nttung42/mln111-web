@@ -134,7 +134,7 @@ window.TX = window.TX || {};
   function hoiRoiPhong() {
     if (!phongHienTai || phongHienTai === TX.sanh) return;
     if (TX.hud.theDangMo() || TX.hud.soTayDangMo()) return;
-    if (ctx && ctx.khoaCamera) return;  // đang chiếu cảnh phim thì thôi
+    if (ctx && (ctx.khoaCamera || ctx.khoaNhap)) return;  // đang chiếu cảnh phim / đang mở bàn việc thì thôi
     var L = TX.VI.game.roiPhong;
     dangHoiRoi = true;
     lucHoi = performance.now();
@@ -217,6 +217,8 @@ window.TX = window.TX || {};
     player.constrain = null;
     player.onClick = null;
     player.chuotTuDo = !!def.chuotTuDo;
+    player.bay = false;
+    player.yMin = 1.0; player.yMax = 24;
     player.spawn(0, 5.6);
     document.getElementById('veSanh').classList.toggle('on', def !== TX.sanh);
     TX.touch.datLai(def === TX.sanh);
@@ -321,7 +323,8 @@ window.TX = window.TX || {};
     TX.uTime.value = clock;
 
     /* đang đọc thẻ hoặc mở sổ tay thì người chơi đứng yên */
-    player.enabled = !TX.hud.theDangMo() && !TX.hud.soTayDangMo() && !!phongHienTai;
+    player.enabled = !TX.hud.theDangMo() && !TX.hud.soTayDangMo() && !!phongHienTai &&
+                     !(ctx && ctx.khoaNhap);
 
     player.update(dt);
 
