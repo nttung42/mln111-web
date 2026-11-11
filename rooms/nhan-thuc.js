@@ -7,7 +7,7 @@
    khi trạm trước đã xong. Không khí đổi theo từng trạm, từ tối ra sáng:
 
      I   LỊCH SỬ        tím u ám, sương dày. Ba đạo cụ, cả ba là BẪY:
-                        đèn duy tâm, rương "vật tự nó", gương siêu hình.
+                        đèn duy tâm, rương bản chất, gương siêu hình.
      II  XƯỞNG THỰC TIỄN cam công nghiệp. Kéo cần gạt → xưởng chạy, sương
                         tan, bốn vai trò của thực tiễn sáng lần lượt — và
                         chiếc rương ở trạm I bật mở.
@@ -613,7 +613,7 @@
     P.blockers.push({ x: dx, z: dz, r: 0.55 });
     o.vat.push({ id: 'den', tram: 0, x: dx, z: dz, tam: 1.7, goiY: T.den.goiY });
 
-    /* --- rương "vật tự nó" trong lồng năng lượng --- */
+    /* --- rương bản chất trong lồng năng lượng --- */
     var rz = 14.0;
     chongSach(g, 0, rz, T.sach);
 
@@ -720,7 +720,7 @@
      Mỗi thứ mang dấu của đúng học thuyết nó đại diện:
        cột     bốn trụ của nhận thức luận trước Mác, cột nào cũng nứt
        bục nến cột Hy Lạp thu nhỏ, khắc ΙΔΕΑ — ý niệm của Platon
-       bục rương  chồng sách của Kant: “vật tự nó” đứng trên chính lý thuyết ấy
+       bục rương  chồng sách của Kant: rương bản chất đứng trên chính lý thuyết ấy
        tủ gương   khắc TABULA RASA — ý thức như tấm bảng trắng, chờ in      */
 
   var COT_TRAM1 = [
@@ -3870,8 +3870,8 @@
     tieuDe: 'Lý luận nhận thức',
     nhanNgan: 'Tầng II · Chương 2',
     moTa: 'Bốn trạm, từ bóng tối ra ánh sáng: con người nhận thức thế giới bằng cách nào?',
-    /* cổng dị giới: tím magenta và xanh cyan neon, theo tài liệu thiết kế */
-    mauCua: { vien: 0x1a0638, giua: 0x8a2be2, loi: 0xe6ffff, dom: [0x00ffff, 0xc77dff] },
+    /* hồng ngọc đỏ — ngọn lửa trong hang Platon; tách hẳn khỏi cửa tím của sảnh */
+    mauCua: { vien: 0x3a0610, giua: 0xd6283c, loi: 0xffeedd, dom: [0xff5a4a, 0xffc070] },
     goiY: {
       khoa:    'Lại gần một đạo cụ, giữ <kbd>Chuột trái</kbd> · Cạnh bia, ấn <kbd>E</kbd>',
       duPhong: 'Lại gần một đạo cụ, giữ <kbd>F</kbd> · Cạnh bia, ấn <kbd>E</kbd>'

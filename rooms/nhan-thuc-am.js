@@ -166,7 +166,7 @@ TX.amNhanThuc = (function () {
       });
     });
 
-    /* ---------- rương "vật tự nó" ---------- */
+    /* ---------- rương bản chất ---------- */
     var pRuong = diem(vt.ruong, 0.35);
     var long = gain(0.012, pRuong);
     osc('sine', 220).connect(long);

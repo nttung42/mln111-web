@@ -107,7 +107,12 @@ window.TX = window.TX || {};
       hoiRoiPhong();
     });
     document.addEventListener('pointerlockchange', function () {
-      if (!document.pointerLockElement) { lucNhaKhoa = performance.now(); hoiRoiPhong(); }
+      if (!document.pointerLockElement) {
+        lucNhaKhoa = performance.now();
+        /* phòng chuột tự do (Cờ Tỷ Phú) vào từ sảnh đang khoá con trỏ: game tự nhả khoá,
+           không phải người chơi nhấn Esc, nên không bật hộp "rời phòng" */
+        if (!(phongHienTai && phongHienTai.chuotTuDo)) hoiRoiPhong();
+      }
     });
 
     TX.hud.veSoTay(TX.soTay.danhSach());
@@ -305,7 +310,8 @@ window.TX = window.TX || {};
         '<span><kbd>Kéo chuột</kbd>nhìn quanh</span>'
       : '<span><kbd>Chuột trái</kbd>tác động</span><span><kbd>Chuột phải</kbd>tác động ngược</span>' +
         '<span><kbd>Chuột</kbd>nhìn quanh</span>';
-    return '<div class="keys"><span><kbd>W A S D</kbd>di chuyển</span>' + tacDong +
+    return '<div class="keys"><span><kbd>W A S D</kbd>di chuyển</span>' +
+           (player.bay ? '<span><kbd>Space</kbd>bay lên</span><span><kbd>R</kbd>bay xuống</span>' : '<span><kbd>Space</kbd>nhảy</span>') + tacDong +
            '<span><kbd>Tab</kbd>sổ tay</span>' +
            (phongHienTai && phongHienTai !== TX.sanh ? '<span><kbd>Esc</kbd>rời phòng</span>' : '') +
            '</div>';

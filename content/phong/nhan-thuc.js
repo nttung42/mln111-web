@@ -34,7 +34,7 @@ TX.VI['nhan-thuc'] = {
       tieuDe: 'Lịch sử nhận thức luận',
       dong: [
         ['Chủ nghĩa duy tâm', 'Coi nhận thức là sản phẩm của thần linh, hoặc của cảm giác chủ quan.'],
-        ['Thuyết bất khả tri (Kant)', 'Cho rằng con người chỉ thấy hiện tượng bên ngoài, không thể nhận thức được bản chất thực sự — cái “vật tự nó”.'],
+        ['Thuyết bất khả tri (Kant)', 'Cho rằng con người chỉ thấy hiện tượng bên ngoài, không thể nhận thức được bản chất thực sự của sự vật.'],
         ['CNDV trước Mác', 'Coi nhận thức như tấm gương soi thụ động, thiếu vắng vai trò của THỰC TIỄN.']
       ],
       ketLuan: 'Ba đạo cụ trong trạm này là ba lối đi cũ. Hãy thử lần lượt từng cái.'
@@ -159,7 +159,7 @@ TX.VI['nhan-thuc'] = {
     },
     {
       tieuDe: 'Cột Hume · Kant', khaiNiem: 'Thuyết bất khả tri',
-      lapLuan: 'Hume nghi ngờ mọi tri thức vượt ra ngoài cảm giác; Kant khẳng định ta chỉ biết <b>hiện tượng</b>, còn “vật tự nó” thì không. Khi thực tiễn mở được chiếc rương, vết nứt trên cột này sẽ <em>loé sáng</em>.'
+      lapLuan: 'Hume nghi ngờ mọi tri thức vượt ra ngoài cảm giác; Kant khẳng định ta chỉ biết <b>hiện tượng</b>, còn <b>bản chất</b> của sự vật thì không bao giờ. Khi thực tiễn mở được chiếc rương, vết nứt trên cột này sẽ <em>loé sáng</em>.'
     },
     {
       tieuDe: 'Cột Feuerbach', khaiNiem: 'Duy vật trực quan',
@@ -178,9 +178,9 @@ TX.VI['nhan-thuc'] = {
     },
     {
       tieuDe: 'Kant trước bức tường sương', khaiNiem: 'Thuyết bất khả tri',
-      lapLuan: 'Bên trái là thế giới <b>hiện tượng</b> — sáng, rõ, nhưng nhìn qua cặp kính của chính chủ thể. Bên phải là cùng những sự vật ấy sau bức tường sương: <b>“vật tự nó”</b>, mãi không thể biết. Vạch vàng dưới chân là giới hạn Kant vạch ra cho nhận thức — như mức 92% ở chiếc rương.',
+      lapLuan: 'Bên trái là thế giới <b>hiện tượng</b> — sáng, rõ, nhưng nhìn qua cặp kính của chính chủ thể. Bên phải là cùng những sự vật ấy sau bức tường sương: <b>bản chất</b> của chúng, mãi không thể biết. Vạch vàng dưới chân là giới hạn Kant vạch ra cho nhận thức — như mức 92% ở chiếc rương.',
       lam: 'Một người đứng trước bức tường sương dày, không thể nhìn xuyên qua.',
-      nghia: 'Kant: con người chỉ biết được hiện tượng; “vật tự nó” nằm sau màn sương, mãi không thể biết.',
+      nghia: 'Kant: con người chỉ biết được hiện tượng; bản chất sự vật nằm sau màn sương, mãi không thể biết.',
       viSao: 'Bức tường sương là hình ảnh của giới hạn 92% ở chiếc rương cùng trạm — đến rất gần mà không chạm được.'
     },
     {
@@ -223,10 +223,10 @@ TX.VI['nhan-thuc'] = {
       viSao: 'Các hình chỉ tồn tại khi bạn còn giữ chuột và không giống thứ gì có thật trong phòng — “tri thức” ấy phụ thuộc hoàn toàn vào người nghĩ ra nó. Bóng in lên vách gợi lại hang động Platon trên bức tranh bên cạnh.'
     },
     ruong: {
-      tram: 0, tieuDe: 'Rương “vật tự nó”', khaiNiem: 'Thuyết bất khả tri',
+      tram: 0, tieuDe: 'Rương bản chất', khaiNiem: 'Thuyết bất khả tri',
       lapLuan: 'Đây là đúng lập luận của Kant: ta tiến sát tới sự vật, thấy được lớp hiện tượng bên ngoài, nhưng phần bản chất thì mãi không chạm tới. Con số 92% để bạn <em>cảm thấy</em> sự bế tắc.',
       lam: 'Bạn cố nhìn thấu chiếc rương, nhưng thanh đo kẹt lại ở 92%.',
-      nghia: 'Kant cho rằng con người chỉ biết được hiện tượng; bản chất — “vật tự nó” — mãi nằm ngoài tầm với.',
+      nghia: 'Kant cho rằng con người chỉ biết được hiện tượng, còn bản chất của sự vật thì mãi nằm ngoài tầm với.',
       viSao: 'Con số 92% để bạn đến rất gần mà vẫn không chạm được — đúng cảm giác bế tắc của lập luận bất khả tri. Hãy nhớ chiếc rương này: nó sẽ mở ở trạm sau.'
     },
     guong: {
@@ -260,8 +260,8 @@ TX.VI['nhan-thuc'] = {
       viSao: 'Ở trạm I bạn chỉ quan sát; ở đây lần đầu bạn phải làm. Khác biệt giữa hai trạm chính là bước ngoặt chủ nghĩa duy vật biện chứng đưa vào lý luận nhận thức.'
     },
     ruongMo: {
-      tram: 1, tieuDe: 'Chiếc rương đã mở', khaiNiem: '“Vật tự nó” → “vật cho ta”',
-      lapLuan: 'Thứ mà ba học thuyết cũ không mở được, thực tiễn mở được: <b>không có gì là không thể biết, chỉ có cái chưa biết</b>. Ăngghen từng bác bỏ “vật tự nó” bằng việc hoá học tự tổng hợp được chất nhuộm alizarin — “vật tự nó” thành <em>“vật cho ta”</em>.',
+      tram: 1, tieuDe: 'Chiếc rương đã mở', khaiNiem: 'Cái chưa biết → cái đã biết',
+      lapLuan: 'Thứ mà ba học thuyết cũ không mở được, thực tiễn mở được: <b>không có gì là không thể biết, chỉ có cái chưa biết</b>. Ăngghen từng bác bỏ Kant bằng việc hoá học tự tổng hợp được chất nhuộm alizarin — thứ tưởng mãi nằm sau hiện tượng đã thành <em>tri thức của con người</em>.',
       lam: 'Năng lượng thực tiễn mở được chiếc rương mà ba lối đi cũ đành bó tay.',
       nghia: 'Không có gì là không thể biết, chỉ có cái chưa biết. Ăngghen từng bác bỏ Kant bằng việc hoá học tổng hợp được chất nhuộm alizarin.',
       viSao: 'Rương mở ở trạm trước, từ xa — để bạn thấy thực tiễn giải quyết đúng câu hỏi mà lịch sử triết học từng bế tắc.'
@@ -370,7 +370,7 @@ TX.VI['nhan-thuc'] = {
       ['FEUERBACH', '1804–1872 · duy vật trực quan']
     ],
     yNiem: ['CON NGỰA', 'CÁI CÂY', 'NGÔI NHÀ', 'CÁNH CHIM', 'HÌNH TRÒN HOÀN HẢO'],
-    ruong: { ten: 'RƯƠNG “VẬT TỰ NÓ”',    mo: 'Kant: bản chất không thể biết',  goiY: '<b>cố nhìn thấu chiếc rương</b>' },
+    ruong: { ten: 'RƯƠNG BẢN CHẤT',        mo: 'Kant: bản chất không thể biết',  goiY: '<b>cố nhìn thấu chiếc rương</b>' },
     guong: { ten: 'TẤM GƯƠNG SIÊU HÌNH',  mo: 'Nhận thức là soi chiếu thụ động', goiY: '<b>soi quả táo vào gương</b>' },
     ketQua: {
       den:   'Khói nến hoá thành con ngựa, cái cây, ngôi nhà… rồi tan ngay khi bạn buông tay — chúng chỉ có trong đầu. Tri thức không sinh ra từ cái đầu khép kín.',
@@ -379,7 +379,7 @@ TX.VI['nhan-thuc'] = {
     },
     xong: 'Cả ba lối đi cũ đều dừng ở cùng một chỗ. Thứ còn thiếu ở trạm II — cửa đã mở.',
     buocNhay: ['Bế tắc', 'THIẾU VẮNG THỰC TIỄN'],
-    ruongMo: 'ĐÃ MỞ — “VẬT CHO TA”'
+    ruongMo: 'ĐÃ MỞ — CHƯA BIẾT THÀNH ĐÃ BIẾT'
   },
 
   /* ----- Trạm II ----- */
@@ -419,7 +419,7 @@ TX.VI['nhan-thuc'] = {
       '<b>Tiêu chuẩn</b> — thực tiễn kiểm tra tri thức nào là chân lý'
     ],
     buocNhay: ['Bước ngoặt', 'THỰC TIỄN'],
-    ruongMo: 'Ở trạm I, chiếc rương “vật tự nó” vừa bật mở. Không có gì là không thể biết — chỉ có cái chưa biết.'
+    ruongMo: 'Ở trạm I, chiếc rương bản chất vừa bật mở. Không có gì là không thể biết — chỉ có cái chưa biết.'
   },
 
   /* ----- Trạm III ----- */
@@ -506,7 +506,7 @@ TX.VI['nhan-thuc'] = {
   /* nhãn trên bảng chỉ số */
   panel: {
     den: 'Ý niệm tự sinh',     denDang: 'ĐANG TƯỞNG TƯỢNG',    denXong: 'CHỈ LÀ ẢO ẢNH',  yNiem: 'Ý NIỆM',
-    ruong: 'Nhìn thấu “vật tự nó”', ruongDang: 'ĐANG XEM HIỆN TƯỢNG', ruongKet: 'KHÔNG CHẠM TỚI BẢN CHẤT', banChat: 'BẢN CHẤT',
+    ruong: 'Nhìn thấu bản chất', ruongDang: 'ĐANG XEM HIỆN TƯỢNG', ruongKet: 'KHÔNG CHẠM TỚI BẢN CHẤT', banChat: 'BẢN CHẤT',
     guong: 'Phản ánh của gương', guongDang: 'ĐANG SOI',      guongXong: 'PHẢN ÁNH THỤ ĐỘNG',
     can: 'Năng lượng thực tiễn', canChua: 'XƯỞNG ĐANG NGỪNG',
     giac: 'Nhận thức cảm tính',
@@ -518,7 +518,7 @@ TX.VI['nhan-thuc'] = {
   baiHoc: {
     nhan: 'Bạn đã đi hết con đường nhận thức',
     tieuDe: 'Thực tiễn — cơ sở và tiêu chuẩn của nhận thức',
-    dan: 'Ba lối đi cũ đều dừng trước chiếc rương “vật tự nó”. Chỉ khi xưởng thực tiễn chạy, ' +
+    dan: 'Ba lối đi cũ đều dừng trước chiếc rương bản chất. Chỉ khi xưởng thực tiễn chạy, ' +
          'rương mới mở. Từ đó bạn đi từ cảm giác lên suy luận, rồi đem kết luận trở lại thực tiễn ' +
          'để kiểm nghiệm — và chỉ những gì qua được thử thách ấy mới thành chân lý.',
     dinhNghia: [
