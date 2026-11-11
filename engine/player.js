@@ -32,6 +32,12 @@ TX.Player = function (dom) {
 
   P.enabled = false;        // đang đọc thẻ nội dung thì tắt
   P.chuotTuDo = false;      // true: không khoá con trỏ, người chơi thấy và bấm được
+  /* Chế độ BAY (không gian mở): W/S đi theo hướng đang nhìn kể cả lên xuống,
+     A/D đi ngang, nút tác động (Space/F/E, R/Q, hoặc ✦ ↺ trên cảm ứng) bay
+     lên/xuống. bounds là bán kính (tròn) thay cho ô vuông; yMin/yMax chặn độ cao. */
+  P.bay = false;
+  P.yMin = 1.0;
+  P.yMax = 24;
   P.onClick = null;         // gọi khi có một cú bấm thật (không phải kéo nhìn quanh)
   P.locked = false;
   P.lockBroken = false;
@@ -242,6 +248,7 @@ TX.Player = function (dom) {
     var trenKhong = doCao > 0 || vy > 0;
 
     var sp = keys['ShiftLeft'] ? 5.0 : 3.0;
+    if (P.bay) sp *= 2.2;       // không gian mở rộng: bay nhanh hơn đi bộ
     var fx = truc.x, fz = truc.y;
     if (keys['KeyW'] || keys['ArrowUp'])    fz += 1;
     if (keys['KeyS'] || keys['ArrowDown'])  fz -= 1;
@@ -249,7 +256,7 @@ TX.Player = function (dom) {
     if (keys['KeyD'] || keys['ArrowRight']) fx += 1;
 
     /* vận tốc muốn đạt theo hướng nhìn */
-    var mx = 0, mz = 0;
+    var mx = 0, mz = 0, my = 0;
     if (fx || fz) {
       var len = Math.hypot(fx, fz);
       /* phím: luôn đủ tốc; cần analog: đi chậm khi đẩy nhẹ, chạy khi đẩy hết cỡ */
@@ -257,8 +264,16 @@ TX.Player = function (dom) {
       if (!keys['ShiftLeft'] && muc > 0.94 && (truc.x || truc.y)) sp *= 5.0 / 3.0;
       fx = fx / len * muc; fz = fz / len * muc;
       var s = Math.sin(P.yaw), c = Math.cos(P.yaw);
-      mx = (-fz * s + fx * c) * sp;
-      mz = (-fz * c - fx * s) * sp;
+      if (P.bay) {
+        /* chế độ bay: W/S đi theo hướng nhìn kể cả lên xuống */
+        var cp = Math.cos(P.pitch), sn = Math.sin(P.pitch);
+        mx = (-fz * s * cp + fx * c) * sp;
+        mz = (-fz * c * cp - fx * s) * sp;
+        my = fz * sn * sp;
+      } else {
+        mx = (-fz * s + fx * c) * sp;
+        mz = (-fz * c - fx * s) * sp;
+      }
     }
 
     /* tăng tốc / hãm dần thay vì bật tắt tức thì; trên không thì
@@ -269,6 +284,12 @@ TX.Player = function (dom) {
     if (Math.abs(vx) < 1e-3 && Math.abs(vz) < 1e-3 && !mx && !mz) vx = vz = 0;
     P.pos.x += vx * dt;
     P.pos.z += vz * dt;
+    if (P.bay) {
+      /* bay: lên/xuống bằng Space, F, E (lên) và R, Q (xuống); nút ✦ ↺ trên cảm ứng */
+      var dk = Math.max(-1, Math.min(1, (keys['Space'] ? 1 : 0) + P.action()));
+      P.pos.y += (my + dk * 4.0 * (keys['ShiftLeft'] ? 1.6 : 1)) * dt;
+      P.pos.y = Math.max(P.yMin, Math.min(P.yMax, P.pos.y));
+    }
 
     /* nhún bước theo tốc độ thật; tắt khi đang nhảy */
     var tocDo = Math.hypot(vx, vz);
@@ -278,12 +299,18 @@ TX.Player = function (dom) {
 
     /* chặn tường */
     var lim = P.bounds;
-    P.pos.x = Math.max(-lim, Math.min(lim, P.pos.x));
-    P.pos.z = Math.max(-lim, Math.min(lim, P.pos.z));
+    if (P.bay) {
+      var rr = Math.hypot(P.pos.x, P.pos.z);
+      if (rr > lim) { P.pos.x *= lim / rr; P.pos.z *= lim / rr; }
+    } else {
+      P.pos.x = Math.max(-lim, Math.min(lim, P.pos.x));
+      P.pos.z = Math.max(-lim, Math.min(lim, P.pos.z));
+    }
 
     /* chặn vật cản tròn */
     for (var i = 0; i < P.blockers.length; i++) {
       var b = P.blockers[i];
+      if (b.cao !== undefined && P.pos.y > b.cao) continue;   // bay cao hơn vật cản thì qua được
       var dx = P.pos.x - b.x, dz = P.pos.z - b.z;
       var d = Math.hypot(dx, dz);
       if (d < b.r && d > 0.0001) {
@@ -295,9 +322,10 @@ TX.Player = function (dom) {
     /* chặn theo hình dạng riêng của không gian (vành khuyên của cầu thang xoắn) */
     if (P.constrain) P.constrain(P.pos, truocX, truocZ);
 
-    /* bám theo địa hình (tính trên cao độ chân, chưa cộng cú nhảy) */
+    /* bám theo địa hình (tính trên cao độ chân, chưa cộng cú nhảy); chế độ bay thì giữ nguyên độ cao */
     var nen = P.pos.y - doCao;
-    if (P.groundAt) {
+    if (P.bay) { /* giữ nguyên */ }
+    else if (P.groundAt) {
       var dat = P.groundAt(P.pos.x, P.pos.z) + P.CAO_MAT;
       nen += (dat - nen) * Math.min(1, dt * 14);   // lên bậc mượt, không giật
     } else {
@@ -307,6 +335,7 @@ TX.Player = function (dom) {
     /* nhảy: Space, chỉ khi đang đứng trên sàn; cao chừng 0,75 m.
        Nhấn sớm một chút trước khi chạm đất vẫn tính (hanNhay). */
     if (hanNhay > 0) hanNhay -= dt;
+    if (P.bay) { hanNhay = 0; doCao = vy = 0; }       // bay thì Space là bay lên, không nhảy
     if (hanNhay > 0 && doCao === 0 && vy <= 0) { vy = 4.6; hanNhay = 0; }
     if (doCao > 0 || vy > 0) {
       /* rơi nhanh hơn lúc lên: cú nhảy chắc tay, không lơ lửng */

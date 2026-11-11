@@ -1,0 +1,7 @@
+Ảnh vật liệu trong thư mục này lấy từ Poly Haven (https://polyhaven.com), giấy phép CC0 (phạm vi công cộng):
+  go_*      wood_table_001   gỗ
+  da_hoa_*  marble_rock_02   đá cẩm thạch kem có vân
+  da_*      rock_boulder_dry đá tảng
+  co_*      leafy_grass      cỏ
+  thep_*    metal_plate      thép tấm
+diff = màu (Diffuse), nor = bản đồ pháp tuyến OpenGL (Normal). Bản 1K, nén lại JPEG chất lượng 78.

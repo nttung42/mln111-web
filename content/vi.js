@@ -93,7 +93,8 @@ TX.VI = {
         { hinh: 'buoc',   chu: 'Lượng – Chất' },
         { hinh: 'doiLap', chu: 'Mặt đối lập' },
         { hinh: 'mat',    chu: 'Nhận thức' },
-        { hinh: 'xoan',   chu: 'Phủ định của phủ định' }
+        { hinh: 'xoan',   chu: 'Phủ định của phủ định' },
+        { hinh: 'co',     chu: 'Độc quyền' }
       ]
     }
   }
